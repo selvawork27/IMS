@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { Invoice, Client, LineItem, User, Template } from '@prisma/client';
-import type { Invoice as PrismaInvoice } from '@prisma/client';
+import { Invoice, Client, LineItem, User, Template } from '../generated/prisma/client';
+import type { Invoice as PrismaInvoice } from '../generated/prisma/client';
 import { generateTemplate1PDF } from './pdf/templates/Template1';
 import { generateTemplate2PDF } from './pdf/templates/Template2';
 import { generateTemplate3PDF } from './pdf/templates/Template3';

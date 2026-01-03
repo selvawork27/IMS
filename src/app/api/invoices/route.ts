@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { getInvoices, createInvoice, createClient, logActivity, prisma } from '@/lib/db'
-import { PrismaClient, Prisma } from '@prisma/client'
+import { PrismaClient, Prisma } from '../../../generated/prisma/client'
 const { Decimal } = Prisma;
 
 export async function GET(request: NextRequest) {

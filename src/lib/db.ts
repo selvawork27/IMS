@@ -1,6 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client'
+import { PrismaClient,Prisma } from '../generated/prisma/client';
 const { Decimal } = Prisma;
-import {prisma} from "@/lib/prisma"
+import {prisma} from "./prisma"
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================

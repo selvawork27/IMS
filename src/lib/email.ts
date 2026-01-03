@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { Invoice, Client, LineItem, User, Template } from "@prisma/client";
+import { Invoice, Client, LineItem, User, Template } from "../generated/prisma/client";
 import { getInvoiceUrl } from "./config";
 import { renderTemplate1Email } from './email/templates/Template1'
 import { renderTemplate2Email } from './email/templates/Template2'
