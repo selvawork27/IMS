@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { useClients } from "@/hooks/use-clients";
 import { useCompanyProfile } from "@/hooks/use-company-profile";
+import {useCurrencies} from "@/hooks/use-currencies";
 import { Skeleton } from "../ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Client } from "@/types";
@@ -36,12 +37,21 @@ interface InvoiceItem {
   amount: number;
 }
 
+interface Currency {
+  id: string;
+  code: string;
+  name: string;
+  symbol: string;
+}
+
 interface InvoiceFormData {
   invoiceNumber: string;
   date: string;
   dueDate: string;
   status: "DRAFT" | "SENT" | "VIEWED" | "PAID" | "OVERDUE" | "CANCELLED" | "REFUNDED";
   selectedTemplate: string;
+  currencyId: string;
+  currencyCode: String;
   company: {
     name: string;
     address: string;
@@ -85,12 +95,16 @@ export function InvoiceForm({
   // --- End client dropdown and workspaceId logic ---
 
   const { data: companyProfile, isLoading: companyLoading } = useCompanyProfile();
+  const { currencies, isLoading: currenciesLoading } = useCurrencies();
+
   const [formData, setFormData] = useState<InvoiceFormData>({
     invoiceNumber: initialData?.invoiceNumber || "",
     date: initialData?.date || new Date().toISOString().split("T")[0],
     dueDate: initialData?.dueDate || "",
     status: initialData?.status || "DRAFT",
     selectedTemplate: templateFromQuery || initialData?.selectedTemplate || "template1",
+    currencyId: initialData?.currencyId || "",
+    currencyCode:initialData?.currencyCode||"",
     company: {
       name: initialData?.company?.name || "",
       address: initialData?.company?.address || "",
@@ -131,8 +145,21 @@ export function InvoiceForm({
       });
     }
   }, [companyProfile]);
+    useEffect(() => {
+      if (!formData.currencyId && currencies.length > 0) {
+        const usd = currencies.find((c: Currency) => c.code === "USD");
 
-  const updateItem = (
+        if (usd) {
+          setFormData((prev) => ({
+            ...prev,
+            currencyId: usd.id,
+            currencyCode:usd.code
+          }));
+        }
+      }
+    }, [currencies,formData.currencyId]);
+
+  const updateItem = (  
     id: string,
     field: keyof InvoiceItem,
     value: string | number,
@@ -186,6 +213,8 @@ export function InvoiceForm({
     dueDate: formData.dueDate,
     status: 'DRAFT' as const,
     subtotal: subtotal,
+    currency: formData.currencyCode || '', 
+    currencyId: formData.currencyId||'',
     taxAmount: tax,
     total: total,
     notes: formData.notes,
@@ -201,6 +230,7 @@ export function InvoiceForm({
       unitPrice: item.rate,
       amount: item.amount,
     })),
+    tags:[]
   });
 
   const saveInvoiceMutation = useMutation({
@@ -436,6 +466,38 @@ export function InvoiceForm({
                 placeholder="INV-001"
               />
             </div>
+              <div className="space-y-2">
+              <Label htmlFor="currencyCode">Currency</Label>
+
+              <select
+                id="currencyCode"
+                value={formData.currencyId}
+                onChange={(e) => {
+                  const selectedId = e.target.value;
+                  // Find the currency object that matches the selected ID
+                  const selectedCurrency = currencies.find((c:Currency) => c.id === selectedId);
+                  setFormData((prev) => ({
+                    ...prev,
+                    currencyId: selectedId,
+                    currencyCode: selectedCurrency ? selectedCurrency.code : "",
+                  }));
+                }}
+                disabled={currenciesLoading}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="">
+                  {currenciesLoading ? "Loading currencies..." : "Select Currency"}
+                </option>
+
+                {currencies.map((currency: Currency) => (
+                  <option key={currency.id} value={currency.id}>
+                    {currency.code} – {currency.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+
             <div className="space-y-2">
               <Label htmlFor="date">Invoice Date</Label>
               <Input
@@ -707,7 +769,7 @@ export function InvoiceForm({
                       <div className="md:col-span-2 space-y-2">
                         <Label>Amount</Label>
                         <Input
-                          value={`$${item.amount.toFixed(2)}`}
+                          value={`${formData.currencyCode} ${item.amount.toFixed(2)}`}
                           disabled
                           className="bg-gray-50"
                         />
@@ -736,16 +798,16 @@ export function InvoiceForm({
               <CardContent className="p-6 space-y-4">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
+                  <span className="font-medium">{`${formData.currencyCode} `+subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax (10%)</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
+                  <span className="font-medium">{`${formData.currencyCode} `+tax.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-xl font-bold">
                   <span>Total</span>
-                  <span className="text-[#2388ff]">${total.toFixed(2)}</span>
+                  <span className="text-[#2388ff]">{`${formData.currencyCode} `+total.toFixed(2)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -896,6 +958,8 @@ export function InvoiceForm({
                 invoiceNumber: formData.invoiceNumber || "INV-001",
                 date: formData.date,
                 dueDate: formData.dueDate,
+                currencyId:formData.currencyId,
+                currencyCode: formData.currencyCode,
                 status: formData.status,
                 company: formData.company,
                 client: formData.client,

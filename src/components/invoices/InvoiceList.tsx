@@ -29,6 +29,8 @@ interface Invoice {
   number: string;
   client: string;
   amount: number;
+  currencyCode:string;
+  currencyId:string;
   status: "DRAFT" | "SENT" | "VIEWED" | "PAID" | "OVERDUE" | "CANCELLED" | "REFUNDED";
   date: string;
   dueDate: string;
@@ -209,6 +211,9 @@ export function InvoiceList({
                   Client
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700">
+                  Currency
+                </TableHead>
+                <TableHead className="font-semibold text-gray-700">
                   Amount
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700">
@@ -239,7 +244,10 @@ export function InvoiceList({
                     {invoice.client}
                   </TableCell>
                   <TableCell className="font-semibold text-gray-900">
-                    {formatCurrency(invoice.amount)}
+                    {invoice.currencyCode}
+                  </TableCell>
+                  <TableCell className="font-semibold text-gray-900">
+                    {invoice.amount}
                   </TableCell>
                   <TableCell>
                     <Badge

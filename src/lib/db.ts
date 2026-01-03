@@ -1,4 +1,4 @@
-import { PrismaClient,Prisma } from '../generated/prisma/client';
+import { PrismaClient,Prisma } from '@prisma/client';
 const { Decimal } = Prisma;
 import {prisma} from "./prisma"
 // ============================================================================
@@ -264,9 +264,9 @@ export async function getInvoices(userId: string, workspaceId: string, options: 
     ...(clientId && { clientId }),
     ...(search && {
       OR: [
-        { invoiceNumber: { contains: search, mode: 'insensitive' as const } },
-        { title: { contains: search, mode: 'insensitive' as const } },
-        { client: { name: { contains: search, mode: 'insensitive' as const } } }
+        { invoiceNumber: { contains: search} },
+        { title: { contains: search} },
+        { client: { name: { contains: search } } }
       ]
     }),
     ...(dateFrom && dateTo && {
@@ -417,8 +417,8 @@ export async function getTemplates(userId: string, options: {
     ...(isPublic !== undefined && { isPublic }),
     ...(search && {
       OR: [
-        { name: { contains: search, mode: 'insensitive' as const } },
-        { description: { contains: search, mode: 'insensitive' as const } }
+        { name: { contains: search} },
+        { description: { contains: search } }
       ]
     })
   }
