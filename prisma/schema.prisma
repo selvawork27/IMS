@@ -2,12 +2,11 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
 }
 
 // ============================================================================
@@ -193,7 +192,7 @@ model Client {
 
   // Status and metadata
   status ClientStatus @default(ACTIVE)
-  tags   String[] // Array of tags for categorization
+  tags   Json // Array of tags for categorization
 
   // Timestamps
   createdAt   DateTime  @default(now()) @map("created_at")
@@ -254,7 +253,7 @@ model Invoice {
   // Metadata
   notes String?  @db.Text
   terms String?  @db.Text
-  tags  String[]
+  tags  Json
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
@@ -330,7 +329,7 @@ model Template {
   isPublic  Boolean @default(false) @map("is_public")
 
   // Metadata
-  tags String[]
+  tags Json
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
