@@ -49,7 +49,7 @@ model User {
   email         String    @unique
   emailVerified DateTime? @map("email_verified")
   image         String?
-  password      String?   // Add this field for credentials authentication
+  password      String? // Add this field for credentials authentication
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
@@ -96,6 +96,21 @@ model User {
   revenueTracking    RevenueTracking[]
 
   @@map("users")
+}
+
+model Currencie {
+  id       String @id @default(cuid())
+  code     String @unique // USD, INR, EUR
+  name     String
+  symbol   String
+  decimals Int    @default(2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  invoices Invoice[]
+
+  @@map("currencies")
 }
 
 model VerificationToken {
@@ -215,11 +230,11 @@ model Client {
 // ============================================================================
 
 model Invoice {
-  id         String  @id @default(cuid())
-  userId     String  @map("user_id")
-  clientId   String  @map("client_id")
-  workspaceId String @map("workspace_id")
-  templateId String? @map("template_id")
+  id          String  @id @default(cuid())
+  userId      String  @map("user_id")
+  clientId    String  @map("client_id")
+  workspaceId String  @map("workspace_id")
+  templateId  String? @map("template_id")
 
   // Invoice details
   invoiceNumber String  @unique @map("invoice_number")
@@ -251,20 +266,20 @@ model Invoice {
   reminderSent Boolean   @default(false) @map("reminder_sent")
 
   // Metadata
-  notes String?  @db.Text
-  terms String?  @db.Text
-  tags  Json
+  notes String? @db.Text
+  terms String? @db.Text
+  tags Json @default("[]")
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Demo e-invoicing (provisional IRN)
-  demoIrn           String?   @map("demo_irn")
-  demoQrPng         String?   @db.Text @map("demo_qr_png")
-  demoIrnCreatedAt  DateTime? @map("demo_irn_created_at")
-  irnManual         String?   @map("irn_manual")
-  irnManualAt       DateTime? @map("irn_manual_at")
+  demoIrn          String?   @map("demo_irn")
+  demoQrPng        String?   @map("demo_qr_png") @db.Text
+  demoIrnCreatedAt DateTime? @map("demo_irn_created_at")
+  irnManual        String?   @map("irn_manual")
+  irnManualAt      DateTime? @map("irn_manual_at")
 
   // Relations
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -276,6 +291,8 @@ model Invoice {
   reminders       Reminder[]
   activities      Activity[]
   revenueTracking RevenueTracking[]
+  currencie       Currencie?        @relation(fields: [currencieId], references: [id])
+  currencieId     String?
 
   @@map("invoices")
 }
@@ -329,16 +346,16 @@ model Template {
   isPublic  Boolean @default(false) @map("is_public")
 
   // Metadata
-  tags Json
+  ttags Json @default("[]")
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  invoices    Invoice[]
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoices  Invoice[]
 
   @@map("templates")
 }
@@ -348,10 +365,10 @@ model Template {
 // ============================================================================
 
 model Payment {
-  id        String @id @default(cuid())
-  invoiceId String @map("invoice_id")
-  clientId  String @map("client_id")
-  userId    String @map("user_id")
+  id          String @id @default(cuid())
+  invoiceId   String @map("invoice_id")
+  clientId    String @map("client_id")
+  userId      String @map("user_id")
   workspaceId String @map("workspace_id")
 
   // Payment details
@@ -374,10 +391,10 @@ model Payment {
   processedAt DateTime? @map("processed_at")
 
   // Relations
-  invoice     Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  client      Client     @relation(fields: [clientId], references: [id])
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoice   Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  client    Client    @relation(fields: [clientId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("payments")
 }
@@ -387,9 +404,9 @@ model Payment {
 // ============================================================================
 
 model Reminder {
-  id        String @id @default(cuid())
-  invoiceId String @map("invoice_id")
-  userId    String @map("user_id")
+  id          String @id @default(cuid())
+  invoiceId   String @map("invoice_id")
+  userId      String @map("user_id")
   workspaceId String @map("workspace_id")
 
   // Reminder details
@@ -407,9 +424,9 @@ model Reminder {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  invoice     Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoice   Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("reminders")
 }
@@ -419,10 +436,10 @@ model Reminder {
 // ============================================================================
 
 model Activity {
-  id        String  @id @default(cuid())
-  userId    String  @map("user_id")
-  workspaceId String @map("workspace_id")
-  invoiceId String? @map("invoice_id")
+  id          String  @id @default(cuid())
+  userId      String  @map("user_id")
+  workspaceId String  @map("workspace_id")
+  invoiceId   String? @map("invoice_id")
 
   // Activity details
   type        ActivityType
@@ -438,9 +455,9 @@ model Activity {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  invoice     Invoice?   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoice   Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@map("activities")
 }
@@ -500,8 +517,8 @@ model AnalyticsSnapshot {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, workspaceId, date, period])
   @@map("analytics_snapshots")
@@ -527,10 +544,10 @@ model RevenueTracking {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  invoice     Invoice?   @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  client      Client?    @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoice   Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  client    Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
   @@map("revenue_tracking")
 }

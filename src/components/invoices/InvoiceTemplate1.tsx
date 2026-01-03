@@ -14,6 +14,7 @@ interface InvoiceData {
   invoiceNumber?: string;
   date?: string;
   dueDate?: string;
+  currencyCode?:string;
   status?: string;
   company?: {
     name?: string;
@@ -41,6 +42,7 @@ export function InvoiceTemplate1({ data }: InvoiceTemplate1Props) {
   const invoiceData = {
     invoiceNumber: data?.invoiceNumber || "INV-001",
     date: data?.date || "2024-01-15",
+    currencyCode:data?.currencyCode||"USD",
     dueDate: data?.dueDate || "2024-02-15",
     status: data?.status || "pending",
     company: {

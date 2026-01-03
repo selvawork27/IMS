@@ -53,6 +53,8 @@ interface Invoice {
   invoiceNumber: string;
   title?: string;
   total: number;
+  currency:string;
+  currencyId:string;
   status: 'DRAFT' | 'SENT' | 'VIEWED' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'REFUNDED';
   issueDate: string;
   dueDate: string;
@@ -86,6 +88,7 @@ const sampleInvoiceData = {
   invoiceNumber: "INV-001",
   date: "2024-01-15",
   dueDate: "2024-02-15",
+  currencyCode:"USD",
   status: "paid" as const,
   company: {
     name: "Your Company Name",
@@ -474,6 +477,8 @@ export default function InvoicesPage() {
     number: invoice.invoiceNumber,
     client: invoice.client.name,
     amount: invoice.total,
+    currencyCode:invoice.currency,
+    currencyId:invoice.currencyId,
     status: invoice.status as 'DRAFT' | 'SENT' | 'VIEWED' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'REFUNDED',
     date: invoice.issueDate,
     dueDate: invoice.dueDate,
