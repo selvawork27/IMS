@@ -39,6 +39,7 @@ interface InvoiceTemplate2Props {
 
 export function InvoiceTemplate2({ data }: InvoiceTemplate2Props) {
   // Provide default values to prevent undefined errors
+  console.log(data);
   const invoiceData = {
     invoiceNumber: data?.invoiceNumber || "INV-001",
     date: data?.date || "2024-01-15",

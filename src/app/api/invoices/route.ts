@@ -49,7 +49,6 @@ export async function GET(request: NextRequest) {
       dateFrom,
       dateTo
     })
-    // Attach a light flag for provisional IRN presence to each invoice
     const withDemo = {
       ...result,
       invoices: result.invoices.map((inv: any) => ({
@@ -77,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    
+
     // Validate required fields
     if (!body.dueDate || !body.lineItems || body.lineItems.length === 0) {
       return NextResponse.json(

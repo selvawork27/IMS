@@ -13,6 +13,7 @@ import {
   BarChart3,
   DollarSign,
   Plus,
+  ArrowRight 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -109,9 +110,16 @@ export default function WorkspaceLayout({
                   className="w-full flex items-center justify-center border-gray-400 border"
                   onClick={() => router.push(`/${workspaceId}/invoices`)}
                 >
-                  <Plus className="w-4 h-4" />
-                  <span className="group-data-[collapsible=icon]:hidden">New Invoice</span>
+                  <ArrowRight className="w-4 h-4" />
+                  <span className="group-data-[collapsible=icon]:hidden">GoTo Invoice</span>
                 </Button>
+                 {/* <Button 
+                  className="w-full flex items-center justify-center border-gray-400 border"
+                  onClick={() => router.push(`/${workspaceId}/payment`)}
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  <span className="group-data-[collapsible=icon]:hidden">Payment Generator</span>
+                </Button> */}
               </SidebarGroupContent>
             </SidebarGroup>
 

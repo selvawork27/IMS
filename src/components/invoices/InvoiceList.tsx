@@ -306,12 +306,6 @@ export function InvoiceList({
                           <Eye className="mr-2 h-4 w-4" />
                           View Invoice
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => window.open(`/invoice/${invoice.id}`, '_blank')}
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Online
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit?.(invoice.id)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Invoice

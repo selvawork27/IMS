@@ -38,7 +38,6 @@ interface InvoiceTemplate1Props {
 }
 
 export function InvoiceTemplate1({ data }: InvoiceTemplate1Props) {
-  // Provide default values to prevent undefined errors
   const invoiceData = {
     invoiceNumber: data?.invoiceNumber || "INV-001",
     date: data?.date || "2024-01-15",
@@ -138,8 +137,8 @@ export function InvoiceTemplate1({ data }: InvoiceTemplate1Props) {
                 <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                   <td className="py-3 px-4 text-gray-900">{item.description}</td>
                   <td className="py-3 px-4 text-right text-gray-900">{item.quantity}</td>
-                  <td className="py-3 px-4 text-right text-gray-900">${item.rate.toFixed(2)}</td>
-                  <td className="py-3 px-4 text-right text-gray-900">${item.amount.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-right text-gray-900">{invoiceData.currencyCode} {item.rate.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-right text-gray-900">{invoiceData.currencyCode} {item.amount.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

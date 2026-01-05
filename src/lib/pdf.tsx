@@ -459,7 +459,7 @@ export function generateInvoicePDF(invoice: InvoiceWithDetails) {
           <View style={styles.row}>
             <View style={styles.companyInfo}>
               <Text style={styles.sectionTitle}>From:</Text>
-              <Text style={styles.value}>{invoice.user.companyName || 'Your Company'}</Text>
+              <Text style={styles.value}>{invoice.user.companyName || 'DevEnv Tech'}</Text>
               {invoice.user.companyAddress && (
                 <Text style={styles.value}>{invoice.user.companyAddress}</Text>
               )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Swal from 'sweetalert2';
 import { InvoiceList } from "@/components/invoices/InvoiceList";
 import { InvoiceForm } from "@/components/invoices/InvoiceForm";
 import { InvoiceTemplate1 } from "@/components/invoices/InvoiceTemplate1";
@@ -201,12 +202,160 @@ export default function InvoicesPage() {
     setShowForm(true);
   };
 
-  const handleViewInvoice = (id: string) => {
-    setShowPreview(true);
+  const handleViewInvoice =async (id: string) => {
+    try {
+    const res = await fetch(`/api/invoices/${id}/pdf`);
+    if (!res.ok) throw new Error('Failed to load PDF');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } catch (err) {
+    console.error('Error viewing invoice:', err);
+  }
   };
 
-  const handleEditInvoice = (id: string) => {
-    setShowForm(true);
+  const handleEditInvoice = async (id: string) => {
+    try {
+      const res = await fetch(`/api/invoices/${id}`);
+      if (!res.ok) throw new Error('Failed to get Invoice');
+      const { data } = await res.json();
+      console.log(data);
+      const { value: formValues } = await Swal.fire({
+        title: `Edit ${data.invoiceNumber}`,
+        width: '800px',
+        showCancelButton: true,
+        cancelButtonText: 'Cancel',
+        html: `
+          <div style="text-align: left; font-family: sans-serif;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+              <div>
+                <label><b>Title</b></label>
+                <input id="swal-title" class="swal2-input" value="${data.title || ''}" style="width:100%; margin: 5px 0;">
+              </div>
+              <div>
+                <label><b>Currency</b></label>
+                <select id="swal-currency" class="swal2-select" style="width: 100%; margin: 5px 0;">
+                  <option value="USD" ${data.currency === 'USD' ? 'selected' : ''}>USD</option>
+                  <option value="INR" ${data.currency === 'INR' ? 'selected' : ''}>INR</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label><b>Due Date</b></label>
+              <input id="swal-due-date" type="date" class="swal2-input" value="${data.dueDate ? new Date(data.dueDate).toISOString().split('T')[0] : ''}" style="width:100%; margin: 5px 0;">
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+              <label><b>Line Items</b></label>
+              <button type="button" id="add-item-btn" style="background:#2563eb; color:white; border:none; padding:6px 15px; border-radius:4px; cursor:pointer; font-size:12px;">+ Add Item</button>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="font-size:12px; color:#666; border-bottom: 1px solid #eee;">
+                  <th style="text-align:left;">Description</th>
+                  <th width="80">Qty</th>
+                  <th width="120">Price</th>
+                  <th width="100" style="text-align:right;">Total</th>
+                  <th width="40"></th>
+                </tr>
+              </thead>
+              <tbody id="line-items-body">
+                ${data.lineItems.map((item: any) => `
+                  <tr class="line-item-row">
+                    <td><input type="text" class="swal2-input item-desc" value="${item.description}" style="height:32px; width:95%; font-size:14px;"></td>
+                    <td><input type="number" class="swal2-input item-qty" value="${item.quantity}" style="height:32px; width:100%;"></td>
+                    <td><input type="number" class="swal2-input item-price" value="${item.unitPrice}" style="height:32px; width:100%;"></td>
+                    <td class="item-total" style="text-align:right; font-weight:bold; padding-right:10px;">0.00</td>
+                    <td><button type="button" class="remove-item-btn" style="background:none; border:none; color:red; cursor:pointer; font-size:18px;">&times;</button></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 10px; text-align: right;">
+              <div style="font-size: 1.2rem; font-weight: bold;">Grand Total: <span id="summary-grand">0.00</span></div>
+            </div>
+          </div>
+        `,
+        didOpen: () => {
+          const body = document.getElementById('line-items-body')!;
+          
+          const calculateInvoice = () => {
+            let grandTotal = 0;
+            document.querySelectorAll('.line-item-row').forEach(row => {
+              const qty = Number((row.querySelector('.item-qty') as HTMLInputElement).value) || 0;
+              const price = Number((row.querySelector('.item-price') as HTMLInputElement).value) || 0;
+              const rowTotal = qty * price;
+              row.querySelector('.item-total')!.textContent = rowTotal.toFixed(2);
+              grandTotal += rowTotal;
+            });
+            document.getElementById('summary-grand')!.textContent = grandTotal.toFixed(2);
+          };
+
+          calculateInvoice();
+          body.addEventListener('input', calculateInvoice);
+
+          document.getElementById('add-item-btn')!.addEventListener('click', () => {
+            const tr = document.createElement('tr');
+            tr.className = 'line-item-row';
+            tr.innerHTML = `
+              <td><input type="text" class="swal2-input item-desc" placeholder="Item name" style="height:32px; width:95%; font-size:14px;"></td>
+              <td><input type="number" class="swal2-input item-qty" value="1" style="height:32px; width:100%;"></td>
+              <td><input type="number" class="swal2-input item-price" value="0" style="height:32px; width:100%;"></td>
+              <td class="item-total" style="text-align:right; font-weight:bold; padding-right:10px;">0.00</td>
+              <td><button type="button" class="remove-item-btn" style="background:none; border:none; color:red; cursor:pointer; font-size:18px;">&times;</button></td>
+            `;
+            body.appendChild(tr);
+            calculateInvoice();
+          });
+
+          body.addEventListener('click', (e) => {
+            if ((e.target as HTMLElement).classList.contains('remove-item-btn')) {
+              (e.target as HTMLElement).closest('tr')?.remove();
+              calculateInvoice();
+            }
+          });
+        },
+        preConfirm: () => {
+          const rows = document.querySelectorAll('.line-item-row');
+          const lineItems = Array.from(rows).map(row => ({
+            description: (row.querySelector('.item-desc') as HTMLInputElement).value,
+            quantity: Number((row.querySelector('.item-qty') as HTMLInputElement).value),
+            unitPrice: Number((row.querySelector('.item-price') as HTMLInputElement).value),
+            amount: Number(row.querySelector('.item-total')!.textContent)
+          }));
+      
+          const total = Number(document.getElementById('summary-grand')!.textContent);
+
+          return {
+            title: (document.getElementById('swal-title') as HTMLInputElement).value,
+            currency: (document.getElementById('swal-currency') as HTMLSelectElement).value,
+            dueDate: (document.getElementById('swal-due-date') as HTMLInputElement).value,
+            lineItems,
+            total: total,
+            subtotal: total,
+            clientId: data.clientId,
+            status: data.status
+          };
+        }
+      });
+
+      if (formValues) {
+        const updateRes = await fetch(`/api/invoices/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formValues),
+        });
+
+        if (updateRes.ok) { 
+          Swal.fire('Updated!', 'Invoice updated successfully.', 'success');
+          setTimeout(() => window.location.reload(), 1500);
+        }
+      }
+    } catch (error: any) {
+      Swal.fire('Error', error.message, 'error');
+    }
   };
 
   const handleDownloadInvoice = async (id: string) => {
@@ -241,7 +390,6 @@ export default function InvoicesPage() {
   });
 
   const handleSendInvoice = async (id: string) => {
-    // Find the invoice to get client email
     const invoice = invoices.find(inv => inv.id === id);
     if (invoice) {
       setEmailData(prev => ({
@@ -263,14 +411,14 @@ export default function InvoicesPage() {
         body: JSON.stringify({
           status: newStatus,
         }),
-      });
+    });
 
       if (!response.ok) {
         throw new Error('Failed to update invoice status');
       }
 
       toast.success(`Invoice status updated to ${newStatus.toLowerCase()}`);
-      queryClient.invalidateQueries({ queryKey: ['invoices'] }); // Refresh the list
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
     } catch (error) {
       console.error('Error updating invoice status:', error);
       toast.error('Failed to update invoice status');
@@ -471,7 +619,6 @@ export default function InvoicesPage() {
     );
   }
 
-  // Transform invoices for the InvoiceList component
   const transformedInvoices = (invoices || []).map(invoice => ({
     id: invoice.id,
     number: invoice.invoiceNumber,

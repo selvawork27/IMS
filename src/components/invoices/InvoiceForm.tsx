@@ -474,7 +474,6 @@ export function InvoiceForm({
                 value={formData.currencyId}
                 onChange={(e) => {
                   const selectedId = e.target.value;
-                  // Find the currency object that matches the selected ID
                   const selectedCurrency = currencies.find((c:Currency) => c.id === selectedId);
                   setFormData((prev) => ({
                     ...prev,

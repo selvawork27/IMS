@@ -1,7 +1,12 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import { pdfTheme as theme, tw } from '../theme'
 import type { Invoice, Client, LineItem, User } from '@prisma/client'
+import { Font } from '@react-pdf/renderer';
 
+Font.register({
+  family: 'Roboto',
+  src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-light-webfont.ttf'
+});
 export interface InvoiceWithDetails extends Invoice {
   client: Client;
   lineItems: LineItem[];
@@ -9,7 +14,12 @@ export interface InvoiceWithDetails extends Invoice {
 }
 
 const styles = StyleSheet.create({
-  page: { padding: 36, fontSize: 10, color: theme.text.primary },
+  page: { 
+    padding: 36, 
+    fontSize: 10, 
+    color: theme.text.primary, 
+    fontFamily: 'Roboto'
+  },
   headerTitle: { fontSize: 22, fontWeight: 700 },
   light: { color: theme.text.muted },
   row: { flexDirection: 'row' },
@@ -37,7 +47,20 @@ function statusColors(status: string) {
 }
 
 export function generateTemplate1PDF(inv: InvoiceWithDetails) {
-  const fmt = (n: any) => new Intl.NumberFormat('en-US', { style: 'currency', currency: (inv as any).currency || 'USD' }).format(Number(n || 0))
+const fmt = (n: any) => {
+  const currency = (inv as any).currency || 'USD';
+  const amount = Number(n || 0).toLocaleString('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  if (currency === 'INR') {
+    return `INR ${amount}`;
+  } 
+  return new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency: currency 
+  }).format(Number(n || 0));
+}
   const dateStr = (d?: Date) => (d ? new Date(d).toISOString().slice(0, 10) : '')
   const badgeStyle = statusColors(inv.status as any)
 
@@ -47,7 +70,7 @@ export function generateTemplate1PDF(inv: InvoiceWithDetails) {
         {/* Header */}
         <View style={[styles.row, styles.between]}> 
           <View style={styles.col}>
-            <Text style={styles.headerTitle}>INVOICE</Text>
+            <Text style={styles.headerTitle}>{inv?.title}</Text>
             <Text style={[styles.mt2, styles.light]}>#{(inv as any).invoiceNumber}</Text>
           </View>
           <View style={[styles.badge, badgeStyle]}> 
@@ -59,7 +82,7 @@ export function generateTemplate1PDF(inv: InvoiceWithDetails) {
         <View style={[styles.row, styles.between, styles.mt4]}> 
           <View style={{ width: '48%' }}>
             <Text style={styles.light}>FROM</Text>
-            <Text style={{ fontWeight: 700, marginTop: 4 }}>{inv.user?.companyName || 'Your Company'}</Text>
+            <Text style={{ fontWeight: 700, marginTop: 4 }}>{inv.user?.companyName || 'DEVENV Tech'}</Text>
             {!!inv.user?.companyAddress && <Text style={styles.mt2}>{inv.user.companyAddress}</Text>}
             {!!inv.user?.companyEmail && <Text style={styles.mt2}>{inv.user.companyEmail}</Text>}
             {!!inv.user?.companyPhone && <Text style={styles.mt2}>{inv.user.companyPhone}</Text>}
