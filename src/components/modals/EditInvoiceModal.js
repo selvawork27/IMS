@@ -7,45 +7,37 @@ import { useForm, useFieldArray } from 'react-hook-form';
 
 
 export function EditInvoiceModal({ open, onOpenChange, invoice, onSaved }) {
-  const { register, control, handleSubmit, reset, watch, setValue} = useForm({
-    defaultValues: invoice || { title: '', dueDate: '', lineItems: [], total: 0,taxRate:0,taxAmount:0 },
+  const { register, control, handleSubmit, reset, watch, setValue } = useForm({
+    defaultValues: invoice || { title: '', dueDate: '', lineItems: [], total: 0, taxRate: 0, taxAmount: 0 },
   });
 
   useEffect(() => { reset(invoice); }, [invoice, reset]);
 
   // amount calculation
   const lineitmes = watch('lineItems');
-  const taxRate=Number(watch("taxRate")||0);
+  const taxRate = Number(watch("taxRate") || 0);
   const subTotal = (lineitmes || []).reduce((sum, item) => {
     const qty = Number(item?.quantity || 0);
     const price = Number(item?.unitPrice || 0);
     return sum + qty * price;
-  },0);
-  const taxAmount =subTotal* Number(watch("taxRate") || 0)/100;
-  const totalAmount=subTotal+taxAmount;
+  }, 0);
+  const taxAmount = subTotal * Number(watch("taxRate") || 0) / 100;
+  const totalAmount = subTotal + taxAmount;
   useEffect(() => {
     setValue('total', totalAmount);
   }, [totalAmount, setValue]);
   useEffect(() => {
     setValue('subtotal', subTotal);
   }, [subTotal, setValue]);
-  // useEffect(()=>{
-  //   setValue('taxAmount',taxAmount);
-  // },[taxAmount,setValue])
-  // useEffect(()=>{
-  //   setValue("taxRate",taxRate);
-  // },[taxRate,setValue]);
 
-//Date Format
+  //Date Format
   useEffect(() => {
-  if (!invoice) return;
-  reset({
-    ...invoice,
-    dueDate: invoice.dueDate
-      ? invoice.dueDate.split('T')[0]
-      : '',
-  });
-}, [invoice, reset]);
+    if (!invoice) return;
+    reset({
+      ...invoice,
+      dueDate: invoice.dueDate ? invoice.dueDate.split('T')[0] : '',
+    });
+  }, [invoice, reset]);
 
   const { fields, append, remove } = useFieldArray({ control, name: 'lineItems' });
 
@@ -74,10 +66,6 @@ export function EditInvoiceModal({ open, onOpenChange, invoice, onSaved }) {
             <label className="block text-sm">Currency</label>
             <Input type="string" {...register('currency')} />
           </div>
-          {/* <div>
-            <label className="block text-sm">Tax</label>
-            <Input type="number" {...register('taxRate')} />
-          </div> */}
           <div>
             <label className="block text-sm">Due Date</label>
             <Input type="date" {...register('dueDate')} />
@@ -101,19 +89,13 @@ export function EditInvoiceModal({ open, onOpenChange, invoice, onSaved }) {
             <label className="block text-sm font-medium">
               Subtotal: {subTotal}
             </label>
-             <Input hidden={true} {...register('subtotal')}/>
+            <Input hidden={true} {...register('subtotal')} />
           </div>
-          {/* <div>
-            <label className='block text-sm font-medium'>
-              TaxAmount: {taxAmount}
-            </label>
-            <Input hidden={true} {...register('taxAmount')}/>
-          </div> */}
           <div>
             <label className='block text-sm font-medium'>
               Total: {watch('currency')} {totalAmount}
             </label>
-            <Input hidden={true} {...register('total')}/>
+            <Input hidden={true} {...register('total')} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>

@@ -96,6 +96,5 @@ export function ClientViewModal({open,onOpenChange,client}){
     </div>
   </DialogContent>
 </Dialog>
-
     );
 }

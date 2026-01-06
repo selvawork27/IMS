@@ -169,6 +169,7 @@ export async function getClients(userId: string, options: {
     prisma.client.findMany({
       where,
       include: {
+        invoices:true,
         _count: {
           select: { invoices: true }
         }

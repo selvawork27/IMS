@@ -432,46 +432,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Account Status */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-[#2388ff]" />
-                Account Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Plan</span>
-                <Badge className="bg-[#2388ff] text-white">
-                  {settings.subscription.plan || 'Free'}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Status</span>
-                <Badge className={`${
-                  settings.subscription.status === 'ACTIVE' || settings.subscription.status === 'FREE' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {settings.subscription.status}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Next Billing</span>
-                <span className="text-sm font-medium">
-                  {settings.subscription.endsAt 
-                    ? new Date(settings.subscription.endsAt).toLocaleDateString()
-                    : 'N/A'
-                  }
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
+        {/* <div className="space-y-6"> */}
           {/* Quick Actions */}
-          <Card className="border-0 shadow-sm">
+          {/* <Card className="border-0 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Settings className="w-5 h-5 mr-2 text-[#2388ff]" />
@@ -492,10 +455,10 @@ export default function SettingsPage() {
                 Language & Region
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Data Export */}
-          <Card className="border-0 shadow-sm">
+          {/* <Card className="border-0 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Settings className="w-5 h-5 mr-2 text-[#2388ff]" />
@@ -510,8 +473,8 @@ export default function SettingsPage() {
                 Delete Account
               </Button>
             </CardContent>
-          </Card>
-        </div>
+          </Card> */}
+        {/* </div> */}
       </div>
     </div>
   );

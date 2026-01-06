@@ -7,7 +7,7 @@ import { InvoiceForm } from "@/components/invoices/InvoiceForm";
 import { InvoiceTemplate1 } from "@/components/invoices/InvoiceTemplate1";
 import { InvoiceTemplate2 } from "@/components/invoices/InvoiceTemplate2";
 import { InvoiceTemplate3 } from "@/components/invoices/InvoiceTemplate3";
-import { EditInvoiceModal } from "@/modals/EditInvoiceModal";
+import { EditInvoiceModal } from "@/components/modals/EditInvoiceModal";
 import {
   Sheet,
   SheetContent,

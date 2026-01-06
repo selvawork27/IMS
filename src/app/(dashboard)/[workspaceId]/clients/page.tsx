@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClientViewModal } from "@/modals/ClientViewModal";
+import { ClientViewModal } from "@/components/modals/ClientViewModal";
+import {ClientInvoiceViewModal} from "@/components/modals/ClientInvoiceViewModal"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Invoice } from "@prisma/client";
 
 interface Client {
   id: string;
@@ -49,6 +51,7 @@ interface Client {
   _count: {
     invoices: number;
   };
+  invoices?: Invoice[];
 }
 
 interface ClientsResponse {
@@ -218,6 +221,12 @@ export default function ClientsPage() {
   const handleCancelEdit = () => {
     setEditingClient(null);
   };
+  const[onInvoiceView,setOnInvoiceView]=useState(false);
+  const[viewInvoiceData,setViewInvoiceData]=useState({});
+  const handleViewClientInvoice=(client:Client)=>{
+    setViewInvoiceData(client); 
+    setOnInvoiceView(true);
+  }
 
   if (loading && (!clients || clients.length === 0)) {
     return (
@@ -514,6 +523,10 @@ export default function ClientsPage() {
                           <Eye className="w-4 h-4 mr-2" />
                           View Details
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={()=>handleViewClientInvoice(client)}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Invoices
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleStartEdit(client)}>
                           <Edit className="w-4 h-4 mr-2" />
                           Edit Client
@@ -535,6 +548,15 @@ export default function ClientsPage() {
                   onOpenChange={setOnView}
                   client={viewClientData} 
               />)}
+              {onInvoiceView&&(
+                <ClientInvoiceViewModal
+                  open={onInvoiceView}
+                  onOpenChange={setOnInvoiceView}
+                  client={viewInvoiceData}
+                />
+              )
+
+              }
             </div>
           ) : (
             <div className="text-center py-12">
