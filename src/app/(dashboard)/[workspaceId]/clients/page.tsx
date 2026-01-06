@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ClientViewModal } from "@/modals/ClientViewModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -206,6 +207,14 @@ export default function ClientsPage() {
     setEditingClient(client);
   };
 
+  const[onView,setOnView]=useState(false);
+  const[viewClientData,setViewClientData]=useState({});
+
+  const handleViewClient=(client:Client)=>{
+    console.log(client);
+    setViewClientData(client);
+    setOnView(true);
+  }
   const handleCancelEdit = () => {
     setEditingClient(null);
   };
@@ -501,7 +510,7 @@ export default function ClientsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={()=>handleViewClient(client)}>
                           <Eye className="w-4 h-4 mr-2" />
                           View Details
                         </DropdownMenuItem>
@@ -521,6 +530,11 @@ export default function ClientsPage() {
                   </div>
                 </div>
               ))}
+              {onView&&(<ClientViewModal
+                  open={onView}
+                  onOpenChange={setOnView}
+                  client={viewClientData} 
+              />)}
             </div>
           ) : (
             <div className="text-center py-12">

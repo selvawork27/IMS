@@ -383,7 +383,7 @@ export function InvoiceForm({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold text-gray-900">
-              {initialData ? "Edit Invoice" : "Create New Invoice"}
+              {initialData ? "Create New Invoice" : "Create New Invoice"}
             </CardTitle>
             <div className="flex items-center gap-4">
               <Badge variant="outline" className="capitalize px-3 py-1 text-sm">

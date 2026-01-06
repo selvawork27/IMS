@@ -321,7 +321,7 @@ export function InvoiceList({
                           Send to Client
                         </DropdownMenuItem>
                         <Separator className="my-1" />
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                           onClick={() => generateDemoIrnMutation.mutate(invoice.id)}
                           disabled={generateDemoIrnMutation.isPending}
                         >
@@ -336,8 +336,8 @@ export function InvoiceList({
                               Generate Provisional IRN
                             </>
                           )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
+                        </DropdownMenuItem> */}
+                        {/* <DropdownMenuItem
                           onClick={() => {
                             const irn = prompt('Enter official IRN to store:')
                             if (!irn) return
@@ -356,7 +356,7 @@ export function InvoiceList({
                               Enter Official IRN
                             </>
                           )}
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         
                         {/* Status Change Submenu */}
                         <DropdownMenu>
