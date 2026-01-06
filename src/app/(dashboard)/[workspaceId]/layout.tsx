@@ -113,13 +113,13 @@ export default function WorkspaceLayout({
                   <ArrowRight className="w-4 h-4" />
                   <span className="group-data-[collapsible=icon]:hidden">GoTo Invoice</span>
                 </Button>
-                 {/* <Button 
+                 <Button 
                   className="w-full flex items-center justify-center border-gray-400 border"
-                  onClick={() => router.push(`/${workspaceId}/payment`)}
+                  onClick={() => router.push(`/${workspaceId}/product`)}
                 >
                   <ArrowRight className="w-4 h-4" />
-                  <span className="group-data-[collapsible=icon]:hidden">Payment Generator</span>
-                </Button> */}
+                  <span className="group-data-[collapsible=icon]:hidden">Products</span>
+                </Button>
               </SidebarGroupContent>
             </SidebarGroup>
 

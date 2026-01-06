@@ -24,6 +24,7 @@ export function calculateInvoiceTotals(lineItems: Array<{
   }
 }
 
+
 export function generateInvoiceNumber(userId: string, prefix: string = 'INV') {
   const timestamp = Date.now().toString().slice(-6)
   const random = Math.random().toString(36).substring(2, 5).toUpperCase()
@@ -138,6 +139,14 @@ export async function updateUserNotificationSettings(userId: string, data: {
     where: { id: userId },
     data
   })
+}
+
+// ============================================================================
+// PRODUCT MANAGEMENT
+// ============================================================================
+export async function getProduct(){
+  const products= await prisma.product.findMany({});  
+  return products;
 }
 
 // ============================================================================
