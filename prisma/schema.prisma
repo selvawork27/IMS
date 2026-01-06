@@ -98,9 +98,16 @@ model User {
   @@map("users")
 }
 
+model Product {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  invoices Invoice[]
+}
+
 model Currencie {
   id       String @id @default(cuid())
-  code     String @unique // USD, INR, EUR
+  code     String @unique
   name     String
   symbol   String
   decimals Int    @default(2)
@@ -268,7 +275,7 @@ model Invoice {
   // Metadata
   notes String? @db.Text
   terms String? @db.Text
-  tags Json @default("[]")
+  tags  Json    @default("[]")
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
@@ -293,6 +300,8 @@ model Invoice {
   revenueTracking RevenueTracking[]
   currencie       Currencie?        @relation(fields: [currencieId], references: [id])
   currencieId     String?
+  product         Product?          @relation(fields: [productId], references: [id])
+  productId       Int?
 
   @@map("invoices")
 }

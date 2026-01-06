@@ -44,6 +44,11 @@ interface Currency {
   symbol: string;
 }
 
+interface Product{
+  id:number;
+  name: string;
+}
+
 interface InvoiceFormData {
   invoiceNumber: string;
   date: string;
@@ -158,6 +163,16 @@ export function InvoiceForm({
         }
       }
     }, [currencies,formData.currencyId]);
+
+  const [product,setProduct]=useState<Product[]>([]);
+   useEffect(() => {
+      fetch("/api/product")
+        .then(res => res.json())
+        .then((data) => {
+          setProduct(data.products);
+        })
+        .catch(err => console.error(err));
+    }, []);
 
   const updateItem = (  
     id: string,
@@ -468,7 +483,6 @@ export function InvoiceForm({
             </div>
               <div className="space-y-2">
               <Label htmlFor="currencyCode">Currency</Label>
-
               <select
                 id="currencyCode"
                 value={formData.currencyId}
@@ -714,7 +728,7 @@ export function InvoiceForm({
               </h3>
               <Button onClick={addItem} variant="outline" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Item
+                Add Product
               </Button>
             </div>
 
@@ -724,8 +738,21 @@ export function InvoiceForm({
                   <CardContent className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                       <div className="md:col-span-5 space-y-2">
-                        <Label>Description</Label>
-                        <Input
+                        <Label>Item</Label>
+                       {product&&<select
+                       onChange={(e) =>
+                            updateItem(item.id, "description", e.target.value)
+                          }
+                       >
+                        <option value="">
+                            Select Product
+                        </option>
+                
+                       {product.map((product:Product)=>(
+                        <option key={product.id} value={product.name}>{product.name}</option>
+                       ))}
+                       </select>
+                       } <Input
                           value={item.description}
                           onChange={(e) =>
                             updateItem(item.id, "description", e.target.value)
