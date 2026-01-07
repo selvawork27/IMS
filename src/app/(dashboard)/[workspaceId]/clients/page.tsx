@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Invoice } from "@prisma/client";
+import Link from "next/link";
 
 interface Client {
   id: string;
@@ -473,6 +474,7 @@ export default function ClientsPage() {
                         {client.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
+                    <Link href={`clients/${client.id}`}>{client.id}</Link>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
                         <h3 className="font-medium text-gray-900">{client.name}</h3>

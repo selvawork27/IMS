@@ -99,10 +99,20 @@ model User {
 }
 
 model Product {
-  id   Int    @id @default(autoincrement())
-  name String
+  id          Int      @id @default(autoincrement())
+  name        String
+  sku         String?  @unique
 
-  invoices Invoice[]
+  basePrice   Decimal  @default(0.00)
+  
+  description String?
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  lineItems   LineItem[]
 }
 
 model Currencie {
@@ -300,8 +310,6 @@ model Invoice {
   revenueTracking RevenueTracking[]
   currencie       Currencie?        @relation(fields: [currencieId], references: [id])
   currencieId     String?
-  product         Product?          @relation(fields: [productId], references: [id])
-  productId       Int?
 
   @@map("invoices")
 }
@@ -309,6 +317,9 @@ model Invoice {
 model LineItem {
   id        String @id @default(cuid())
   invoiceId String @map("invoice_id")
+  
+  // NEW: Link to Product
+  productId Int?    @map("product_id") 
 
   // Item details
   description String
@@ -326,7 +337,11 @@ model LineItem {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  // NEW: Relation to Product
+  // onDelete: SetNull ensures that if you delete a product, the invoice item history remains intact.
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@map("line_items")
 }

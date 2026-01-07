@@ -391,10 +391,12 @@ export function InvoiceForm({
   const handleSendEmail = () => {
     createAndSendMutation.mutate({ emailData });
   };
-
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <Card>
+        <Button onClick={onCancel} variant="outline">
+              Back
+        </Button>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold text-gray-900">
