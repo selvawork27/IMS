@@ -87,6 +87,9 @@ export function ClientForm({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <Card>
+        <Button variant="outline" onClick={onCancel}>
+          Back
+        </Button>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold text-gray-900">
@@ -127,7 +130,6 @@ export function ClientForm({
                 />
               </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="phone">Phone Number</Label>

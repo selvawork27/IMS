@@ -13,6 +13,7 @@ import {
   BarChart3,
   DollarSign,
   Plus,
+  Gift,
   ArrowRight 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ import { ChatDock } from "@/components/ai/ChatDock";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
+  {name:"Product",href:"/product",icon:Gift},
   { name: "Invoices", href: "/invoices", icon: FileText },
   { name: "Clients", href: "/clients", icon: Users },
   { name: "Templates", href: "/templates", icon: Layout },
@@ -112,13 +114,6 @@ export default function WorkspaceLayout({
                 >
                   <ArrowRight className="w-4 h-4" />
                   <span className="group-data-[collapsible=icon]:hidden">GoTo Invoice</span>
-                </Button>
-                 <Button 
-                  className="w-full flex items-center justify-center border-gray-400 border"
-                  onClick={() => router.push(`/${workspaceId}/product`)}
-                >
-                  <ArrowRight className="w-4 h-4" />
-                  <span className="group-data-[collapsible=icon]:hidden">Products</span>
                 </Button>
               </SidebarGroupContent>
             </SidebarGroup>

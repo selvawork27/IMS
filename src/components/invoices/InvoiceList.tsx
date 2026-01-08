@@ -23,6 +23,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 interface Invoice {
   id: string;
@@ -183,7 +185,7 @@ export function InvoiceList({
       day: "numeric",
     });
   };
-
+  
   return (
     <>
     <Card className="w-full">
@@ -204,6 +206,9 @@ export function InvoiceList({
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
+                <TableHead className="font-semibold text-gray-700">
+                  ID
+                </TableHead>
                 <TableHead className="font-semibold text-gray-700">
                   Invoice
                 </TableHead>
@@ -234,6 +239,14 @@ export function InvoiceList({
                   key={invoice.id}
                   className="hover:bg-gray-50 transition-colors"
                 >
+                  <TableCell className="text-gray-700">
+                      <Link
+                        href={`invoices/${invoice.id}`}
+                        className="cursor-pointer hover:underline"
+                      >
+                        {invoice.id}
+                      </Link> 
+                  </TableCell>
                   <TableCell className="font-medium text-gray-900 flex items-center gap-2">
                     <span>#{invoice.number}</span>
                     {invoice.hasDemoIrn && (
