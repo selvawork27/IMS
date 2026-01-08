@@ -44,9 +44,12 @@ interface Currency {
   symbol: string;
 }
 
-interface Product{
-  id:number;
+interface Product {
+  id: number;          
   name: string;
+  sku: string;         
+  basePrice: number;  
+  description: string;
 }
 
 interface InvoiceFormData {
@@ -740,7 +743,7 @@ export function InvoiceForm({
                   <CardContent className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                       <div className="md:col-span-5 space-y-2">
-                        <Label>Item</Label>
+                        <Label>Products</Label>
                        {product&&<select
                        onChange={(e) =>
                             updateItem(item.id, "description", e.target.value)
@@ -759,7 +762,7 @@ export function InvoiceForm({
                           onChange={(e) =>
                             updateItem(item.id, "description", e.target.value)
                           }
-                          placeholder="Description of service or product"
+                          placeholder="Name of service or product"
                         />
                       </div>
                       <div className="md:col-span-2 space-y-2">
@@ -779,6 +782,20 @@ export function InvoiceForm({
                       </div>
                       <div className="md:col-span-2 space-y-2">
                         <Label>Rate</Label>
+                      {product&&<select
+                       onChange={(e) =>
+                            updateItem(item.id, "rate", e.target.value)
+                          }
+                       >
+                        <option value="">
+                            Select Rate
+                        </option>
+                
+                       {product.map((product:Product)=>(
+                        <option key={product.id} value={product.basePrice}>{product.basePrice}</option>
+                       ))}
+                       </select>
+                       } 
                         <Input
                           type="number"
                           min="0"

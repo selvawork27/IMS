@@ -11,12 +11,12 @@ import { prisma } from './db'
 
 // Create transporter using the same Gmail SMTP configuration
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // true for 465, false for other ports
+  host: process.env.EMAIL_SERVER_HOST,
+  port: Number(process.env.EMAIL_SERVER_PORT) || 465,
+  secure: true, 
   auth: {
-    user: process.env.EMAIL_SERVER_USER,
-    pass: process.env.EMAIL_SERVER_PASSWORD,
+    user: 'resend', // Use the literal string
+    pass: process.env.EMAIL_SERVER_PASSWORD?.trim(),
   },
 });
 

@@ -39,7 +39,7 @@ import { ChatDock } from "@/components/ai/ChatDock";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
-  {name:"Product",href:"/product",icon:Gift},
+  {name:"Products",href:"/product",icon:Gift},
   { name: "Invoices", href: "/invoices", icon: FileText },
   { name: "Clients", href: "/clients", icon: Users },
   { name: "Templates", href: "/templates", icon: Layout },

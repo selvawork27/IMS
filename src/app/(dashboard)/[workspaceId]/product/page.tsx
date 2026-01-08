@@ -39,8 +39,6 @@ export default function ProductPage() {
         if (!response.ok) throw new Error('Failed to fetch products');
         
         const data = await response.json();
-        
-        // CRITICAL FIX: Access the .products property from your API response
         if (data.success && Array.isArray(data.products)) {
           setProducts(data.products);
         } else {
@@ -79,13 +77,7 @@ export default function ProductPage() {
               key={product.id} 
               className="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative overflow-hidden flex flex-col"
             >
-              <div className={`w-12 h-12 rounded-xl ${product.color || 'bg-blue-600'} text-white flex items-center justify-center shadow-md mb-5 group-hover:scale-110 transition-transform`}>
-                <IconRenderer type={product.icon_type || 'activity'} className="w-6 h-6" />
-              </div>
-              
-              <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">
-                {product.tag || 'Solution'}
-              </span>
+            
               <h3 className="text-xl font-bold text-slate-900 mb-2">
                 {product.name}
               </h3>
