@@ -145,7 +145,11 @@ export async function updateUserNotificationSettings(userId: string, data: {
 // PRODUCT MANAGEMENT
 // ============================================================================
 export async function getProduct(){
-  const products= await prisma.product.findMany({});  
+  const products= await prisma.product.findMany({
+    include:{
+      subProducts:true,
+    }
+  });  
   return products;
 }
 
@@ -294,8 +298,11 @@ export async function getInvoices(userId: string, workspaceId: string, options: 
         client: {
           select: { name: true, email: true }
         },
+        currencie: {
+        select: { code: true, symbol: true }
+      },
         lineItems: {
-          select: { amount: true }
+          select: { amount: true,quantity: true }
         },
         _count: {
           select: { lineItems: true, payments: true }

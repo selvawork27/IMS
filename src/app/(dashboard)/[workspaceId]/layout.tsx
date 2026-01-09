@@ -14,6 +14,7 @@ import {
   DollarSign,
   Plus,
   Gift,
+  Files,
   ArrowRight 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,11 +39,13 @@ import Image from "next/image";
 import { ChatDock } from "@/components/ai/ChatDock";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
+  {name: "Dashboard", href: "/dashboard", icon: BarChart3 },
   {name:"Products",href:"/product",icon:Gift},
   { name: "Invoices", href: "/invoices", icon: FileText },
   { name: "Clients", href: "/clients", icon: Users },
+  { name: "Licenses", href: "/licenses", icon: Files },
   { name: "Templates", href: "/templates", icon: Layout },
+  { name: "Currencies", href: "/currencies", icon: DollarSign },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 

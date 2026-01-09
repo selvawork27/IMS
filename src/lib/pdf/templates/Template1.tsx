@@ -182,16 +182,16 @@ export function generateTemplate1PDF(inv: InvoiceWithDetails) {
           <View style={styles.table}>
             <View style={styles.tableHeader}>
               <Text style={[styles.flex4, styles.th]}>Products</Text>
-              {/* <Text style={[styles.flex1, styles.th, styles.textRight]}>Qty</Text> */}
+              <Text style={[styles.flex1, styles.th, styles.textRight]}>Unit/Qty</Text>
               <Text style={[styles.flex2, styles.th, styles.textRight]}>Rate</Text>
               <Text style={[styles.flex2, styles.th, styles.textRight]}>Total</Text>
             </View>
 
             {inv.lineItems.map((item, i) => (
               <View key={i} style={styles.tableRow}>
-                <Text style={[styles.flex4, styles.td, {fontWeight: 500, color: COLORS.primary}]}>{item.description}</Text>
-                {/* <Text style={[styles.flex1, styles.td, styles.textRight]}>{Number(item.quantity)}</Text> */}
-                <Text style={[styles.flex2, styles.td, styles.textRight]}>{fmt(item.unitPrice)}</Text>
+                <Text style={[styles.flex4, styles.td, {fontWeight: 1000, color: COLORS.primary}]}>{item.description}</Text>
+                <Text style={[styles.flex1, styles.td,{fontWeight: 1000}, styles.textRight]}>{Number(item.quantity)}</Text>
+                <Text style={[styles.flex2,{fontWeight: 1000, }, styles.td, styles.textRight]}>{fmt(item.unitPrice)}</Text>
                 <Text style={[styles.flex2, styles.td, styles.textRight, { fontWeight: 700, color: COLORS.primary }]}>
                   {fmt(item.amount)}
                 </Text>

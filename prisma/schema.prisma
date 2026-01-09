@@ -49,9 +49,11 @@ model User {
   email         String    @unique
   emailVerified DateTime? @map("email_verified")
   image         String?
-  password      String? // Add this field for credentials authentication
+  password      String?
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  clientId String? @map("client_id")
 
   // User preferences and settings
   timezone   String? @default("UTC")
@@ -59,7 +61,7 @@ model User {
   language   String? @default("en")
   dateFormat String? @default("MM/DD/YYYY") @map("date_format")
 
-  // Subscription and billing
+  // Subscription and billing (Owner Level)
   subscriptionStatus SubscriptionStatus @default(FREE) @map("subscription_status")
   subscriptionPlan   String?            @map("subscription_plan")
   subscriptionEndsAt DateTime?          @map("subscription_ends_at")
@@ -81,11 +83,15 @@ model User {
   pushNotifications  Boolean @default(false) @map("push_notifications")
   smsNotifications   Boolean @default(false) @map("sms_notifications")
 
-  // Relations
+
+  usageLogs UsageLog[]
+
+  hospital Client? @relation("HospitalStaff", fields: [clientId], references: [id])
+
   accounts           Account[]
   sessions           Session[]
   workspaceMembers   WorkspaceMember[]
-  clients            Client[]
+  clients            Client[]            @relation("ClientOwner")
   invoices           Invoice[]
   templates          Template[]
   payments           Payment[]
@@ -102,17 +108,69 @@ model Product {
   id          Int      @id @default(autoincrement())
   name        String
   sku         String?  @unique
-
-  basePrice   Decimal  @default(0.00)
-  
+  basePrice   Decimal  @default(0.00) @db.Decimal(10, 2)
   description String?
   isActive    Boolean  @default(true)
-  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations
+  subProducts SubProduct[]
   lineItems   LineItem[]
+}
+
+model SubProduct {
+  id          String      @id @default(cuid())
+  productId   Int         @map("product_id")
+  name        String 
+  baseRate    Decimal     @default(0.00) @db.Decimal(10, 2)
+  billingType BillingType @default(FIXED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  lineItems LineItem[]
+
+  usageLogs UsageLog[]
+
+  @@map("sub_products")
+}
+
+model UsageLog {
+  id String @id @default(cuid())
+
+  // The Doctor/Staff who performed the billable action
+  userId String @map("user_id")
+
+  // The specific billable item (e.g., 'Doctor Usage Cost')
+  subProductId String @map("sub_product_id")
+
+  // For HMS, this is usually 1 (one visit), but could be higher 
+  // if tracking things like 'Hours' or 'Data used'.
+  quantity Decimal @default(1) @db.Decimal(10, 2)
+
+  // Metadata for auditing (which patient, which department, etc.)
+  metadata Json? @default("{}")
+
+  // When the action occurred
+  loggedAt DateTime @default(now()) @map("logged_at")
+
+  // --- Relations ---
+  // Connects the usage to the staff member
+  user User @relation(fields: [userId], references: [id])
+
+  // Connects the usage to the pricing rule in SubProduct
+  subProduct SubProduct @relation(fields: [subProductId], references: [id])
+
+  @@index([userId, loggedAt])
+  @@index([subProductId, loggedAt])
+  @@map("usage_logs")
+}
+
+enum BillingType {
+  FIXED // Monthly flat fee
+  USAGE // Variable fee based on quantity (e.g., per doctor visit)
 }
 
 model Currencie {
@@ -232,7 +290,8 @@ model Client {
   lastContact DateTime? @map("last_contact")
 
   // Relations
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User              @relation("ClientOwner", fields: [userId], references: [id], onDelete: Cascade)
+  users           User[]            @relation("HospitalStaff")
   workspace       Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   invoices        Invoice[]
   payments        Payment[]
@@ -252,6 +311,7 @@ model Invoice {
   clientId    String  @map("client_id")
   workspaceId String  @map("workspace_id")
   templateId  String? @map("template_id")
+  currencyId  String? @map("currency_id") // Standardized naming
 
   // Invoice details
   invoiceNumber String  @unique @map("invoice_number")
@@ -264,13 +324,14 @@ model Invoice {
   paidDate  DateTime? @map("paid_date")
 
   // Financial information
+  // These totals will be the sum of all LineItems (Base HMS + Service Charges + Doctor Usage)
   subtotal       Decimal @default(0) @db.Decimal(10, 2)
   taxAmount      Decimal @default(0) @db.Decimal(10, 2)
   discountAmount Decimal @default(0) @db.Decimal(10, 2)
   total          Decimal @default(0) @db.Decimal(10, 2)
 
   // Currency and tax
-  currency String  @default("USD")
+  currency String  @default("USD") // The display code (e.g., 'USD')
   taxRate  Decimal @default(0) @map("tax_rate") @db.Decimal(5, 4)
 
   // Status and workflow
@@ -298,18 +359,20 @@ model Invoice {
   irnManual        String?   @map("irn_manual")
   irnManualAt      DateTime? @map("irn_manual_at")
 
-  // Relations
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  client          Client            @relation(fields: [clientId], references: [id])
-  workspace       Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  template        Template?         @relation(fields: [templateId], references: [id])
-  lineItems       LineItem[]
+  // --- Relations ---
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client    Client     @relation(fields: [clientId], references: [id])
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  template  Template?  @relation(fields: [templateId], references: [id])
+  currencie Currencie? @relation(fields: [currencyId], references: [id])
+
+  // These link to the detailed billing rows (Service Charge, Doctor Usage, etc.)
+  lineItems LineItem[]
+
   payments        Payment[]
   reminders       Reminder[]
   activities      Activity[]
   revenueTracking RevenueTracking[]
-  currencie       Currencie?        @relation(fields: [currencieId], references: [id])
-  currencieId     String?
 
   @@map("invoices")
 }
@@ -317,19 +380,20 @@ model Invoice {
 model LineItem {
   id        String @id @default(cuid())
   invoiceId String @map("invoice_id")
-  
-  // NEW: Link to Product
-  productId Int?    @map("product_id") 
+
+  // Relations to the Product hierarchy
+  productId    Int?    @map("product_id")
+  subProductId String? @map("sub_product_id") // Link to the specific sub-component
 
   // Item details
   description String
-  quantity    Decimal @default(1) @db.Decimal(10, 2)
+  quantity    Decimal @default(1) @db.Decimal(10, 2) // For HMS, this is the total usage count
   unitPrice   Decimal @map("unit_price") @db.Decimal(10, 2)
   amount      Decimal @default(0) @db.Decimal(10, 2)
 
   // Optional fields
   sku   String?
-  unit  String? @default("item")
+  unit  String? @default("item") // e.g., "visit", "hour", "license"
   notes String?
 
   // Timestamps
@@ -337,11 +401,9 @@ model LineItem {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  
-  // NEW: Relation to Product
-  // onDelete: SetNull ensures that if you delete a product, the invoice item history remains intact.
-  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  invoice    Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  product    Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  subProduct SubProduct? @relation(fields: [subProductId], references: [id], onDelete: SetNull)
 
   @@map("line_items")
 }

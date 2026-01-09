@@ -24,13 +24,15 @@ import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { useClients } from "@/hooks/use-clients";
 import { useCompanyProfile } from "@/hooks/use-company-profile";
-import {useCurrencies} from "@/hooks/use-currencies";
+import { useCurrencies } from "@/hooks/use-currencies";
 import { Skeleton } from "../ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Client } from "@/types";
 
 interface InvoiceItem {
   id: string;
+  productId?: number;
+  subProductId?: string;
   description: string;
   quantity: number;
   rate: number;
@@ -44,12 +46,26 @@ interface Currency {
   symbol: string;
 }
 
-interface Product {
-  id: number;          
+interface SubProduct {
+  id: string;
+  productId: number;
   name: string;
-  sku: string;         
-  basePrice: number;  
+  baseRate: number;
+  billingType: 'FIXED' | 'USAGE';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  sku: string;
+  basePrice: number;
   description: string;
+  isActive: boolean;
+  subProducts: SubProduct[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface InvoiceFormData {
@@ -112,7 +128,7 @@ export function InvoiceForm({
     status: initialData?.status || "DRAFT",
     selectedTemplate: templateFromQuery || initialData?.selectedTemplate || "template1",
     currencyId: initialData?.currencyId || "",
-    currencyCode:initialData?.currencyCode||"",
+    currencyCode: initialData?.currencyCode || "",
     company: {
       name: initialData?.company?.name || "",
       address: initialData?.company?.address || "",
@@ -153,49 +169,50 @@ export function InvoiceForm({
       });
     }
   }, [companyProfile]);
-    useEffect(() => {
-      if (!formData.currencyId && currencies.length > 0) {
-        const usd = currencies.find((c: Currency) => c.code === "USD");
+  useEffect(() => {
+    if (!formData.currencyId && currencies.length > 0) {
+      const usd = currencies.find((c: Currency) => c.code === "USD");
 
-        if (usd) {
-          setFormData((prev) => ({
-            ...prev,
-            currencyId: usd.id,
-            currencyCode:usd.code
-          }));
-        }
+      if (usd) {
+        setFormData((prev) => ({
+          ...prev,
+          currencyId: usd.id,
+          currencyCode: usd.code
+        }));
       }
-    }, [currencies,formData.currencyId]);
+    }
+  }, [currencies, formData.currencyId]);
 
-  const [product,setProduct]=useState<Product[]>([]);
-   useEffect(() => {
-      fetch("/api/product")
-        .then(res => res.json())
-        .then((data) => {
-          setProduct(data.products);
-        })
-        .catch(err => console.error(err));
-    }, []);
+  const [product, setProduct] = useState<Product[]>([]);
+  useEffect(() => {
+    fetch("/api/product")
+      .then(res => res.json())
+      .then((data) => {
+        console.log(data.products);
+        setProduct(data.products);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
-  const updateItem = (  
-    id: string,
-    field: keyof InvoiceItem,
-    value: string | number,
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      items: prev.items.map((item) => {
-        if (item.id === id) {
-          const updated = { ...item, [field]: value };
-          if (field === "quantity" || field === "rate") {
-            updated.amount = updated.quantity * updated.rate;
-          }
-          return updated;
-        }
-        return item;
-      }),
-    }));
-  };
+  // const updateItem = (  
+  //   id: string,
+  //   field: keyof InvoiceItem,
+  //   value: string | number,
+  // ) => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     items: prev.items.map((item) => {
+  //       if (item.id === id) {
+  //         const updated = { ...item, [field]: value };
+  //         if (field === "quantity" || field === "rate") {
+  //           updated.amount = updated.quantity * updated.rate;
+  //         }
+  //         return updated;
+  //       }
+  //       return item;
+  //     }),
+  //   }));
+  // };
 
   const addItem = () => {
     const newId = (formData.items.length + 1).toString();
@@ -231,8 +248,8 @@ export function InvoiceForm({
     dueDate: formData.dueDate,
     status: 'DRAFT' as const,
     subtotal: subtotal,
-    currency: formData.currencyCode || '', 
-    currencyId: formData.currencyId||'',
+    currency: formData.currencyCode || '',
+    currencyId: formData.currencyId || '',
     taxAmount: tax,
     total: total,
     notes: formData.notes,
@@ -248,7 +265,7 @@ export function InvoiceForm({
       unitPrice: item.rate,
       amount: item.amount,
     })),
-    tags:[]
+    tags: []
   });
 
   const saveInvoiceMutation = useMutation({
@@ -368,7 +385,7 @@ export function InvoiceForm({
 
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [showTemplatePreview, setShowTemplatePreview] = useState(false);
-  
+
   type EmailState = {
     recipientEmail: string;
     includePDF: boolean;
@@ -394,11 +411,55 @@ export function InvoiceForm({
   const handleSendEmail = () => {
     createAndSendMutation.mutate({ emailData });
   };
+
+
+  const updateItem = (
+    id: string,
+    arg2: keyof InvoiceItem | Partial<InvoiceItem>,
+    arg3?: string | number
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => {
+        if (item.id === id) {
+          const updates = typeof arg2 === "object"
+            ? arg2
+            : { [arg2]: arg3 };
+          const updated = { ...item, ...updates };
+          const q = Number(updated.quantity) || 0;
+          const r = Number(updated.rate) || 0;
+          updated.amount = q * r;
+
+          return updated;
+        }
+        return item;
+      }),
+    }));
+  };
+
+  const addSubProductAsNewRow = (parentName: string, sub: SubProduct) => {
+    const newId = crypto.randomUUID();
+    setFormData((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        {
+          id: newId,
+          description: `${parentName}: ${sub.name}`,
+          quantity: 1,
+          rate: Number(sub.baseRate),
+          amount: Number(sub.baseRate),
+          productId: prev.items[prev.items.length - 1]?.productId,
+          subProductId: sub.id
+        },
+      ],
+    }));
+  };
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <Card>
         <Button onClick={onCancel} variant="outline">
-              Back
+          Back
         </Button>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -442,8 +503,7 @@ export function InvoiceForm({
               ].map((template) => (
                 <div
                   key={template.id}
-                  className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md ${
-                    formData.selectedTemplate === template.id
+                  className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md ${formData.selectedTemplate === template.id
                       ? "border-[#2388ff] bg-blue-50"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
@@ -486,14 +546,14 @@ export function InvoiceForm({
                 placeholder="INV-001"
               />
             </div>
-              <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="currencyCode">Currency</Label>
               <select
                 id="currencyCode"
                 value={formData.currencyId}
                 onChange={(e) => {
                   const selectedId = e.target.value;
-                  const selectedCurrency = currencies.find((c:Currency) => c.id === selectedId);
+                  const selectedCurrency = currencies.find((c: Currency) => c.id === selectedId);
                   setFormData((prev) => ({
                     ...prev,
                     currencyId: selectedId,
@@ -514,8 +574,6 @@ export function InvoiceForm({
                 ))}
               </select>
             </div>
-
-
             <div className="space-y-2">
               <Label htmlFor="date">Invoice Date</Label>
               <Input
@@ -739,92 +797,114 @@ export function InvoiceForm({
 
             <div className="space-y-4">
               {formData.items.map((item, index) => (
-                <Card key={item.id} className="border-gray-200">
+                <Card key={item.id} className="border-gray-200 overflow-visible">
                   <CardContent className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+
+                      {/* PRODUCT & SUB-PRODUCT SELECTION */}
                       <div className="md:col-span-5 space-y-2">
-                        <Label>Products</Label>
-                       {product&&<select
-                       onChange={(e) =>
-                            updateItem(item.id, "description", e.target.value)
-                          }
-                       >
-                        <option value="">
-                            Select Product
-                        </option>
-                
-                       {product.map((product:Product)=>(
-                        <option key={product.id} value={product.name}>{product.name}</option>
-                       ))}
-                       </select>
-                       } <Input
-                          value={item.description}
-                          onChange={(e) =>
-                            updateItem(item.id, "description", e.target.value)
-                          }
-                          placeholder="Name of service or product"
-                        />
+                        <Label className="text-xs text-muted-foreground">Product / Service</Label>
+                        <div className="flex flex-col gap-1.5">
+
+                          {/* 1. Main Product Selection: Updates the CURRENT row */}
+                          <select
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm focus:ring-1 focus:ring-primary"
+                            value={item.productId || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (!val) return;
+
+                              const selectedProd = product.find(p => p.id === parseInt(val));
+                              if (selectedProd) {
+                                updateItem(item.id, {
+                                  description: selectedProd.name,
+                                  productId: selectedProd.id,
+                                  rate: selectedProd.basePrice,
+                                  subProductId: undefined
+                                });
+                              }
+                            }}
+                          >
+                            <option value="">Select Main Product</option>
+                            {product.map((p: Product) => (
+                              <option key={p.id} value={p.id.toString()}>
+                                {p.name}
+                              </option>
+                            ))}
+                          </select>
+
+                          {/* 2. Sub-Product Selection: Adds a NEW row */}
+                          {item.productId && product.find(p => p.id === item.productId)?.subProducts?.length! > 0 && (
+                            <select
+                              className="flex h-8 w-full rounded-md border border-blue-200 bg-blue-50/50 px-3 py-1 text-xs text-blue-800 font-medium"
+                              value=""
+                              onChange={(e) => {
+                                const subId = e.target.value;
+                                if (!subId) return;
+                                const parentProd = product.find(p => p.id === item.productId);
+                                const sub = parentProd?.subProducts.find((s) => s.id === subId);
+
+                                if (sub && parentProd) {
+                                  addSubProductAsNewRow(parentProd.name, sub);
+                                }
+                              }}
+                            >
+                              <option value="">+ Click to add Sub-Service</option>
+                              {product.find(p => p.id === item.productId)?.subProducts.map((sub: SubProduct) => (
+                                <option key={sub.id} value={sub.id}>
+                                  {sub.name} (Rate: {sub.baseRate})
+                                </option>
+                              ))}
+                            </select>
+                          )}
+
+                          {/* 3. Final Editable Description for this specific row */}
+                          <Input
+                            className="h-8 text-xs italic bg-gray-50/30"
+                            value={item.description}
+                            onChange={(e) => updateItem(item.id, "description", e.target.value)}
+                            placeholder="Final description for invoice"
+                          />
+                        </div>
                       </div>
+
+                      {/* QUANTITY */}
                       <div className="md:col-span-2 space-y-2">
                         <Label>Quantity</Label>
                         <Input
                           type="number"
                           min="1"
                           value={item.quantity}
-                          onChange={(e) =>
-                            updateItem(
-                              item.id,
-                              "quantity",
-                              parseInt(e.target.value) || 0,
-                            )
-                          }
+                          onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
                         />
                       </div>
+
+                      {/* RATE */}
                       <div className="md:col-span-2 space-y-2">
                         <Label>Rate</Label>
-                      {product&&<select
-                       onChange={(e) =>
-                            updateItem(item.id, "rate", e.target.value)
-                          }
-                       >
-                        <option value="">
-                            Select Rate
-                        </option>
-                
-                       {product.map((product:Product)=>(
-                        <option key={product.id} value={product.basePrice}>{product.basePrice}</option>
-                       ))}
-                       </select>
-                       } 
                         <Input
                           type="number"
-                          min="0"
-                          step="0.01"
                           value={item.rate}
-                          onChange={(e) =>
-                            updateItem(
-                              item.id,
-                              "rate",
-                              parseFloat(e.target.value) || 0,
-                            )
-                          }
+                          onChange={(e) => updateItem(item.id, "rate", parseFloat(e.target.value) || 0)}
                           placeholder="0.00"
                         />
                       </div>
+
+                      {/* TOTAL AMOUNT */}
                       <div className="md:col-span-2 space-y-2">
                         <Label>Amount</Label>
-                        <Input
-                          value={`${formData.currencyCode} ${item.amount.toFixed(2)}`}
-                          disabled
-                          className="bg-gray-50"
-                        />
+                        <div className="h-10 flex items-center px-3 rounded-md bg-gray-100 font-medium text-gray-700 border border-gray-200">
+                          {formData.currencyCode} {(item.quantity * item.rate).toFixed(2)}
+                        </div>
                       </div>
-                      <div className="md:col-span-1 flex justify-center">
+
+                      {/* DELETE BUTTON */}
+                      <div className="md:col-span-1 flex justify-center pb-1">
                         <Button
                           onClick={() => removeItem(item.id)}
                           variant="ghost"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          size="icon"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
                           disabled={formData.items.length === 1}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -843,16 +923,16 @@ export function InvoiceForm({
               <CardContent className="p-6 space-y-4">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">{`${formData.currencyCode} `+subtotal.toFixed(2)}</span>
+                  <span className="font-medium">{`${formData.currencyCode} ` + subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax (10%)</span>
-                  <span className="font-medium">{`${formData.currencyCode} `+tax.toFixed(2)}</span>
+                  <span className="font-medium">{`${formData.currencyCode} ` + tax.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-xl font-bold">
                   <span>Total</span>
-                  <span className="text-[#2388ff]">{`${formData.currencyCode} `+total.toFixed(2)}</span>
+                  <span className="text-[#2388ff]">{`${formData.currencyCode} ` + total.toFixed(2)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -864,8 +944,8 @@ export function InvoiceForm({
               Cancel
             </Button>
             <div className="space-x-4">
-              <Button 
-                onClick={handleSave} 
+              <Button
+                onClick={handleSave}
                 variant="outline"
                 disabled={saveInvoiceMutation.isPending}
               >
@@ -906,7 +986,7 @@ export function InvoiceForm({
               Send this invoice to your client via email. You can customize the recipient and include a PDF attachment.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
               <Label htmlFor="recipientEmail">Recipient Email</Label>
@@ -995,15 +1075,15 @@ export function InvoiceForm({
               Preview how your invoice will look with the selected template.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
-            <TemplatePreview 
-              templateId={formData.selectedTemplate} 
+            <TemplatePreview
+              templateId={formData.selectedTemplate}
               data={{
                 invoiceNumber: formData.invoiceNumber || "INV-001",
                 date: formData.date,
                 dueDate: formData.dueDate,
-                currencyId:formData.currencyId,
+                currencyId: formData.currencyId,
                 currencyCode: formData.currencyCode,
                 status: formData.status,
                 company: formData.company,
