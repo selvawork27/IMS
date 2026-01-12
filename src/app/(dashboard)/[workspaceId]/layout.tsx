@@ -15,7 +15,8 @@ import {
   Plus,
   Gift,
   Files,
-  ArrowRight 
+  ArrowRight ,
+  BookText 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -44,6 +45,7 @@ const navigation = [
   { name: "Invoices", href: "/invoices", icon: FileText },
   { name: "Clients", href: "/clients", icon: Users },
   { name: "Licenses", href: "/licenses", icon: Files },
+  { name: "Client Licenses", href: "/clientLicenses", icon: BookText  },
   { name: "Templates", href: "/templates", icon: Layout },
   { name: "Currencies", href: "/currencies", icon: DollarSign },
   { name: "Settings", href: "/settings", icon: Settings },

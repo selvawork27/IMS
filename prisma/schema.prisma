@@ -134,29 +134,49 @@ enum BillingCycle {
 }
 
 model License {
-  id            String        @id @default(cuid())
-  name          String
-  code          String        @unique
-  description   String?
+  id          String  @id @default(cuid())
+  name        String
+  code        String  @unique
+  description String?
 
-  price         Decimal       @db.Decimal(10, 2)
-  currency      String        @default("INR")
-  billingCycle  BillingCycle
+  price        Decimal      @db.Decimal(10, 2)
+  currency     String       @default("INR")
+  billingCycle BillingCycle
 
-  startDate     DateTime
-  endDate       DateTime
-  autoRenew     Boolean       @default(true)
-  renewalPrice Decimal?      @db.Decimal(10, 2)
+  startDate    DateTime
+  endDate      DateTime
+  autoRenew    Boolean  @default(true)
+  renewalPrice Decimal? @db.Decimal(10, 2)
 
-  status        LicenseStatus @default(ACTIVE)
+  status LicenseStatus @default(ACTIVE)
 
-  products      Product[]
-  clients       Client[]
+  products Product[]
+  clients  Client[]
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  clientLicenses ClientLicense[]
 }
 
+model ClientLicense {
+  id          String @id @default(cuid())
+  clientId    String @map("client_id")
+  licenseId   String @map("license_id")
+  workspaceId String @map("workspace_id")
+
+  // Registration metadata
+  assignedAt DateTime @default(now())
+  isActive   Boolean  @default(true)
+  notes      String?  @db.Text
+
+  // Relations
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  license   License   @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, licenseId]) // Prevents assigning the same license twice to one client
+  @@map("client_licenses")
+}
 
 model SubProduct {
   id          String      @id @default(cuid())
@@ -271,6 +291,7 @@ model Workspace {
   activities         Activity[]
   analyticsSnapshots AnalyticsSnapshot[]
   revenueTracking    RevenueTracking[]
+  clientLicenses     ClientLicense[]
 
   @@map("workspaces")
 }
@@ -338,6 +359,7 @@ model Client {
   revenueTracking RevenueTracking[]
   license         License?          @relation(fields: [licenseId], references: [id])
   licenseId       String
+  clientLicenses  ClientLicense[]
 
   @@unique([userId, workspaceId, email])
   @@map("clients")

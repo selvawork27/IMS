@@ -162,6 +162,15 @@ export async function getLicenseById(id: string) {
     },
   })
 }
+
+export async function getAllCLientLicense(){
+  return prisma.clientLicense.findMany({
+    include:{
+      license:true,
+      client:true,
+    }
+  })
+}
 // ============================================================================
 // PRODUCT MANAGEMENT
 // ============================================================================
