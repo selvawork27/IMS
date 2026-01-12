@@ -172,7 +172,6 @@ export function InvoiceForm({
   useEffect(() => {
     if (!formData.currencyId && currencies.length > 0) {
       const usd = currencies.find((c: Currency) => c.code === "USD");
-
       if (usd) {
         setFormData((prev) => ({
           ...prev,
@@ -253,7 +252,7 @@ export function InvoiceForm({
     taxAmount: tax,
     total: total,
     notes: formData.notes,
-    templateName: formData.selectedTemplate,
+    templateName: formData.selectedTemplate||'template1',
     client: {
       name: formData.client.name,
       email: formData.client.email,
@@ -278,7 +277,6 @@ export function InvoiceForm({
       if (!formData.items.length || formData.items.some(item => !item.description)) {
         throw new Error('Please add at least one item with description');
       }
-
       const response = await fetch('/api/invoices', {
         method: 'POST',
         headers: {
@@ -455,6 +453,7 @@ export function InvoiceForm({
       ],
     }));
   };
+  
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <Card>
@@ -476,7 +475,7 @@ export function InvoiceForm({
 
         <CardContent className="space-y-8">
           {/* Template Selection */}
-          <div className="border-b pb-6">
+          {/* <div className="border-b pb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Palette className="w-5 h-5 text-gray-600" />
@@ -528,7 +527,7 @@ export function InvoiceForm({
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Invoice Details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

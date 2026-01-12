@@ -148,6 +148,7 @@ export default function InvoicesPage() {
       throw new Error('Failed to fetch invoices');
     }
     const data: InvoicesResponse = await response.json();
+    console.log(data)
     return data.data || { invoices: [], total: 0 };
   }
 

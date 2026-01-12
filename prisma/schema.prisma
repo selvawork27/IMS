@@ -83,7 +83,6 @@ model User {
   pushNotifications  Boolean @default(false) @map("push_notifications")
   smsNotifications   Boolean @default(false) @map("sms_notifications")
 
-
   usageLogs UsageLog[]
 
   hospital Client? @relation("HospitalStaff", fields: [clientId], references: [id])
@@ -116,12 +115,53 @@ model Product {
 
   subProducts SubProduct[]
   lineItems   LineItem[]
+  license     License?     @relation(fields: [licenseId], references: [id])
+  licenseId   String
 }
+
+enum LicenseStatus {
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+  CANCELLED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  LIFETIME
+}
+
+model License {
+  id            String        @id @default(cuid())
+  name          String
+  code          String        @unique
+  description   String?
+
+  price         Decimal       @db.Decimal(10, 2)
+  currency      String        @default("INR")
+  billingCycle  BillingCycle
+
+  startDate     DateTime
+  endDate       DateTime
+  autoRenew     Boolean       @default(true)
+  renewalPrice Decimal?      @db.Decimal(10, 2)
+
+  status        LicenseStatus @default(ACTIVE)
+
+  products      Product[]
+  clients       Client[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
 
 model SubProduct {
   id          String      @id @default(cuid())
   productId   Int         @map("product_id")
-  name        String 
+  name        String
   baseRate    Decimal     @default(0.00) @db.Decimal(10, 2)
   billingType BillingType @default(FIXED)
 
@@ -296,6 +336,8 @@ model Client {
   invoices        Invoice[]
   payments        Payment[]
   revenueTracking RevenueTracking[]
+  license         License?          @relation(fields: [licenseId], references: [id])
+  licenseId       String
 
   @@unique([userId, workspaceId, email])
   @@map("clients")

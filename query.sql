@@ -41,3 +41,30 @@ VALUES
 ('SimpliRad™ RIS-PACS', 'SR-RIS-001', 1200.00, 'AI-enabled, cloud-based software for secure medical image management.', 1, NOW(), NOW()),
 ('SimpliConnect™', 'SR-CON-002', 450.00, 'Referral & EMR management with encrypted sharing and specialist collaboration.', 1, NOW(), NOW()),
 ('InnoHMS / Academics', 'SR-ACA-003', 300.00, 'Online academic platform for healthcare professional interactive learning.', 1, NOW(), NOW());
+
+
+use linea;
+INSERT INTO sub_products (id, product_id, name, baseRate, billingType, updatedAt)
+VALUES ('sp_service_009', 3, 'Doctor Charge', 500.00, 'FIXED', NOW());
+
+
+
+INSERT INTO License 
+(id, name, code, description, price, currency, billingCycle, startDate, endDate, autoRenew, renewalPrice, status, createdAt, updatedAt) 
+VALUES
+(
+  'ckxyz1234567890abcdef1234',
+  'Basic License',
+  'BASIC',
+  'This is the basic license',
+  99.99,
+  'INR',
+  'MONTHLY',
+  '2026-01-01 00:00:00',
+  '2027-01-01 00:00:00',
+  TRUE,
+  89.99,
+  'ACTIVE',
+  NOW(),
+  NOW()
+);

@@ -142,6 +142,27 @@ export async function updateUserNotificationSettings(userId: string, data: {
 }
 
 // ============================================================================
+// LICENSE MANAGEMENT
+// ============================================================================
+  export async function getLicense(){
+    const license=await prisma.license.findMany({
+      include:{
+        products:true,
+        clients:true
+      }
+    })
+    return license; 
+  }
+export async function getLicenseById(id: string) {
+  return prisma.license.findUnique({
+    where: { id },
+    include: {
+      products: true,
+      clients: true,
+    },
+  })
+}
+// ============================================================================
 // PRODUCT MANAGEMENT
 // ============================================================================
 export async function getProduct(){
@@ -229,6 +250,7 @@ export async function createClient(userId: string, workspaceId: string, data: {
   zipCode?: string
   country?: string
   companyName?: string
+  licenseId?:string
   taxNumber?: string
   notes?: string
   tags?: string[]
@@ -348,6 +370,7 @@ export async function createInvoice(userId: string, workspaceId: string, data: {
   description?: string
   dueDate: Date
   currency?: string
+  currencyId:string
   taxRate?: Prisma.Decimal
   notes?: string
   terms?: string

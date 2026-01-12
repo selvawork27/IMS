@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Save, X, Building, User, Mail, Phone, MapPin, Globe } from "lucide-react";
+import { Save, X, Building, User, Mail, Phone, MapPin, Globe,CalendarSync  } from "lucide-react";
 
 interface ClientFormData {
   name: string;
@@ -24,6 +24,7 @@ interface ClientFormData {
   zipCode?: string;
   country?: string;
   taxNumber?: string;
+  licenseId: string;
   notes?: string;
   status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
   tags: string[];
@@ -53,6 +54,7 @@ export function ClientForm({
     country: initialData?.country || "US",
     taxNumber: initialData?.taxNumber || "",
     notes: initialData?.notes || "",
+    licenseId: initialData?.licenseId || "",
     status: initialData?.status || "ACTIVE",
     tags: initialData?.tags || [],
   });
@@ -81,8 +83,29 @@ export function ClientForm({
       toast.error("Name and email are required");
       return;
     }
+    console.log(formData);
     onSave?.(formData);
   };
+
+
+const [licenses, setLicenses] = useState<any[]>([]);
+
+useEffect(() => {
+  const fetchLicenses = async () => {
+    try {
+      const response = await fetch('/api/licenses');
+      const data = await response.json();
+      console.log(data);  
+      if (data.success) {
+        setLicenses(data.licenses);
+      }
+    } catch (error) {
+      console.error("Error fetching licenses:", error);
+    }
+  };
+
+  fetchLicenses();
+}, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -153,7 +176,34 @@ export function ClientForm({
           </div>
 
           <Separator />
+<div className="space-y-6">
+  <div className="flex items-center space-x-2">
+    <CalendarSync  className="w-5 h-5 text-[#2388ff]" />
+    <h3 className="text-lg font-semibold">License/Plan</h3>
+  </div>
 
+  <div>
+    <Label htmlFor="license">Choose Plan</Label>
+    <select
+      id="license"
+      className="w-full mt-1 p-2 border rounded-md bg-white"
+      value={formData.licenseId || ""}
+      onChange={(e) => setFormData(prev => ({ 
+        ...prev, 
+        licenseId: e.target.value 
+      }))}
+    >
+      <option value="">Select a License</option>
+      {licenses.map((lic) => (
+        <option key={lic.id} value={lic.id}>
+          {lic.name}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
+
+  <Separator />
           {/* Company Information */}
           <div className="space-y-6">
             <div className="flex items-center space-x-2">

@@ -1,4 +1,4 @@
-import React, { use, useEffect } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,6 +49,20 @@ export function EditInvoiceModal({ open, onOpenChange, invoice, onSaved }) {
     if (res.ok) { onSaved(); onOpenChange(false); }
     else { }
   };
+
+  // const[currency,setCurrency]=useState({})
+  // useEffect(()=>{
+  //   const fetchCurrency= async ()=>{
+  //     const response=await fetch(`/api/invoices/${invoice.id}`);
+  //     if (!response.ok) {
+  //       const errorData = await response.json().catch(() => ({}));
+  //       throw new Error(errorData.error || 'Failed to create invoice');
+  //     }
+  //     console.log(response.json());
+  //     return response.json();
+  //   }
+  //   fetchCurrency();
+  // })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
