@@ -24,20 +24,20 @@ interface License {
 }
 
 const LicensePage = () => {
-  const [licenses, setLicenses] = useState<License[]>([])
+  const [plans, setPlans] = useState<License[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const router = useRouter()
 
   useEffect(() => {
-    const fetchLicenses = async () => {
+    const fetchPlans = async () => {
       try {
-        const res = await fetch("/api/licenses")
+        const res = await fetch("/api/plans")
         if (!res.ok) throw new Error("Failed to fetch licenses")
         const data = await res.json()
       console.log(data);
-        if (data.success && Array.isArray(data.licenses)) {
-          setLicenses(data.licenses)
+        if (data.success && Array.isArray(data.plans)) {
+          setPlans(data.plans)
         }
       } catch (error) {
         console.error(error)
@@ -45,10 +45,10 @@ const LicensePage = () => {
         setLoading(false)
       }
     }
-    fetchLicenses()
+    fetchPlans()
   }, [])
 
-  const filteredLicenses = licenses.filter(l => 
+  const filteredLicenses = plans.filter(l => 
     l.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -65,7 +65,7 @@ const LicensePage = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Licenses/Plans</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Plans</h1>
         </div>
       </div>
       {/* License Grid */}
@@ -113,7 +113,7 @@ const LicensePage = () => {
               </div>
 
               <button
-                onClick={() => router.push(`licenses/${license.id}`)}
+                onClick={() => router.push(`plans/${license.id}`)}
                 className="w-full py-2.5 bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl font-medium hover:bg-black hover:text-white hover:border-black transition-all duration-200"
               >
                 View Details

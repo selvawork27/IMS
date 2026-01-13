@@ -1,4 +1,4 @@
-import { getLicenseById } from "@/lib/db";
+import { getPlanById } from "@/lib/db";
 import { notFound} from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, CreditCard, Users, Box, RefreshCcw } from "lucide-react";
@@ -9,7 +9,7 @@ export default async function LicenseDetailPage({
   params: Promise<{ id: string,workspaceId:string }> 
 }) {
   const { id,workspaceId } = await params;
-  const license = await getLicenseById(id);
+  const license = await getPlanById(id);
 
   if (!license) {
     notFound();

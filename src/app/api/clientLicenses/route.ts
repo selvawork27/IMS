@@ -31,9 +31,10 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { clientId, workspaceId, licenseId, notes } = body;
+    console.log(body);
+    const { clientId, workspaceId, planId, notes } = body;
 
-    if (!clientId || !workspaceId || !licenseId) {
+    if (!clientId || !workspaceId || !planId) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
       data: {
         clientId,
         workspaceId,
-        licenseId,
+        planId,
         notes,
         isActive: true,
       },

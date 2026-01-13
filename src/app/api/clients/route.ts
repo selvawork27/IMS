@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       state: body.state,
       zipCode: body.zipCode,
       country: body.country,
-      licenseId:body.licenseId,
+      planId:body.planId,
       companyName: body.companyName,
       taxNumber: body.taxNumber,
       notes: body.notes,

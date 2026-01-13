@@ -14,7 +14,7 @@ export default function LicenseDetailPage() {
       try {
         const res = await fetch(`/api/clientLicenses/${id}`);
         const result = await res.json();
-        
+        console.log(result);
         if (result.success) {
           setData(result.data);
         }
@@ -48,9 +48,9 @@ export default function LicenseDetailPage() {
 
         {/* License Card */}
         <div className="bg-gray-900 text-white rounded-2xl p-6">
-          <label className="text-[10px] font-bold text-gray-500 uppercase">License Plan</label>
-          <p className="text-xl font-bold mt-2 text-blue-400">{data.license?.name}</p>
-          <p className="text-2xl font-mono mt-2">{data.license?.currency} {data.license?.price}</p>
+          <label className="text-[10px] font-bold text-gray-500 uppercase">Plan</label>
+          <p className="text-xl font-bold mt-2 text-blue-400">{data.plan?.name}</p>
+          <p className="text-2xl font-mono mt-2">{data.license?.currency} {data.plan?.price}</p>
         </div>
 
         {/* Notes Section */}

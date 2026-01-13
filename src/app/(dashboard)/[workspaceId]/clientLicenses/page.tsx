@@ -27,6 +27,7 @@ const ClientLicensesPage = () => {
     try {
       const res = await fetch("/api/clientLicenses");
       const data = await res.json();
+      console.log(data.Clientlicenses); 
       if (data.success) {
         setLicensesList(data.Clientlicenses);
       }
@@ -67,7 +68,7 @@ const ClientLicensesPage = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client License ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">License ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
               </tr>
             </thead>
@@ -78,8 +79,8 @@ const ClientLicensesPage = () => {
                 licensesList.map((item: any) => (
                   <tr key={item.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{<Link href={`clientLicenses/${item.id}`}>{item.id}</Link>}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.clientId}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.licenseId}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.clientId} ({item.client.name})</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.planId} ({item.plan.name})</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 text-xs rounded-full ${item.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {item.isActive ? 'Active' : 'Inactive'}
@@ -103,9 +104,9 @@ const ClientLicensesPage = () => {
 const RegistrationForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [clients, setClients] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
-  const [licenses, setLicenses] = useState([]);
-  const [formData, setFormData] = useState({ clientId: '', workspaceId: '', licenseId: '', notes: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false); // New loading state for submit
+  const [plans, setPlans] = useState([]);
+  const [formData, setFormData] = useState({ clientId: '', workspaceId: '', planId: '', notes: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchDropdowns = async () => {
@@ -113,11 +114,11 @@ const RegistrationForm = ({ onSuccess }: { onSuccess: () => void }) => {
         const [c, w, l] = await Promise.all([
           fetch('/api/clients').then(res => res.json()),
           fetch('/api/workspaces').then(res => res.json()),
-          fetch('/api/licenses').then(res => res.json())
+          fetch('/api/plans').then(res => res.json())
         ]);
         setClients(c.data?.clients || []); 
         setWorkspaces(w.data || []);
-        setLicenses(l.licenses || []);
+        setPlans(l.plans || []);
       } catch (err) {
         console.error("Dropdown fetch error", err);
       }
@@ -127,7 +128,7 @@ const RegistrationForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true); // Start spinner
+    setIsSubmitting(true);
     try {
       const res = await fetch("/api/clientLicenses", {
         method: "POST",
@@ -141,7 +142,7 @@ const RegistrationForm = ({ onSuccess }: { onSuccess: () => void }) => {
         alert(err.error);
       }
     } finally {
-      setIsSubmitting(false); // Stop spinner
+      setIsSubmitting(false);
     }
   };
 
@@ -165,10 +166,10 @@ const RegistrationForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Select License</label>
-        <select className="w-full border p-2 rounded bg-white" required value={formData.licenseId} onChange={e => setFormData({...formData, licenseId: e.target.value})}>
+        <label className="block text-sm font-medium mb-1">Select Plan</label>
+        <select className="w-full border p-2 rounded bg-white" required value={formData.planId} onChange={e => setFormData({...formData, planId: e.target.value})}>
           <option value="">Select...</option>
-          {licenses.map((item: any) => <option key={item.id} value={item.id}>{item.name}</option>)}
+          {plans.map((item: any) => <option key={item.id} value={item.id}>{item.name}</option>)}
         </select>
       </div>
 

@@ -24,7 +24,7 @@ interface ClientFormData {
   zipCode?: string;
   country?: string;
   taxNumber?: string;
-  licenseId: string;
+  planId: string;
   notes?: string;
   status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
   tags: string[];
@@ -54,7 +54,7 @@ export function ClientForm({
     country: initialData?.country || "US",
     taxNumber: initialData?.taxNumber || "",
     notes: initialData?.notes || "",
-    licenseId: initialData?.licenseId || "",
+    planId: initialData?.planId || "",
     status: initialData?.status || "ACTIVE",
     tags: initialData?.tags || [],
   });
@@ -88,16 +88,16 @@ export function ClientForm({
   };
 
 
-const [licenses, setLicenses] = useState<any[]>([]);
+const [plans, setPlans] = useState<any[]>([]);
 
 useEffect(() => {
   const fetchLicenses = async () => {
     try {
-      const response = await fetch('/api/licenses');
+      const response = await fetch('/api/plans');
       const data = await response.json();
       console.log(data);  
       if (data.success) {
-        setLicenses(data.licenses);
+        setPlans(data.plans);
       }
     } catch (error) {
       console.error("Error fetching licenses:", error);
@@ -179,7 +179,7 @@ useEffect(() => {
 <div className="space-y-6">
   <div className="flex items-center space-x-2">
     <CalendarSync  className="w-5 h-5 text-[#2388ff]" />
-    <h3 className="text-lg font-semibold">License/Plan</h3>
+    <h3 className="text-lg font-semibold">Plan</h3>
   </div>
 
   <div>
@@ -187,16 +187,16 @@ useEffect(() => {
     <select
       id="license"
       className="w-full mt-1 p-2 border rounded-md bg-white"
-      value={formData.licenseId || ""}
+      value={formData.planId || ""}
       onChange={(e) => setFormData(prev => ({ 
         ...prev, 
-        licenseId: e.target.value 
+        planId: e.target.value 
       }))}
     >
       <option value="">Select a License</option>
-      {licenses.map((lic) => (
-        <option key={lic.id} value={lic.id}>
-          {lic.name}
+      {plans.map((plan) => (
+        <option key={plan.id} value={plan.id}>
+          {plan.name}
         </option>
       ))}
     </select>

@@ -144,17 +144,17 @@ export async function updateUserNotificationSettings(userId: string, data: {
 // ============================================================================
 // LICENSE MANAGEMENT
 // ============================================================================
-  export async function getLicense(){
-    const license=await prisma.license.findMany({
+  export async function getPlan(){
+    const plan=await prisma.plan.findMany({
       include:{
         products:true,
         clients:true
       }
     })
-    return license; 
+    return plan; 
   }
-export async function getLicenseById(id: string) {
-  return prisma.license.findUnique({
+export async function getPlanById(id: string) {
+  return prisma.plan.findUnique({
     where: { id },
     include: {
       products: true,
@@ -166,7 +166,7 @@ export async function getLicenseById(id: string) {
 export async function getAllCLientLicense(){
   return prisma.clientLicense.findMany({
     include:{
-      license:true,
+      plan:true,
       client:true,
     }
   })
@@ -259,7 +259,7 @@ export async function createClient(userId: string, workspaceId: string, data: {
   zipCode?: string
   country?: string
   companyName?: string
-  licenseId?:string
+  planId?:string
   taxNumber?: string
   notes?: string
   tags?: string[]

@@ -115,11 +115,10 @@ model Product {
 
   subProducts SubProduct[]
   lineItems   LineItem[]
-  license     License?     @relation(fields: [licenseId], references: [id])
-  licenseId   String
+  plans       Plan[]    @relation("PlanToProduct")
 }
 
-enum LicenseStatus {
+enum PlanStatus {
   ACTIVE
   EXPIRED
   SUSPENDED
@@ -133,7 +132,7 @@ enum BillingCycle {
   LIFETIME
 }
 
-model License {
+model Plan {
   id          String  @id @default(cuid())
   name        String
   code        String  @unique
@@ -148,9 +147,9 @@ model License {
   autoRenew    Boolean  @default(true)
   renewalPrice Decimal? @db.Decimal(10, 2)
 
-  status LicenseStatus @default(ACTIVE)
+  status PlanStatus @default(ACTIVE)
 
-  products Product[]
+  products  Product[] @relation("PlanToProduct")
   clients  Client[]
 
   createdAt      DateTime        @default(now())
@@ -161,7 +160,7 @@ model License {
 model ClientLicense {
   id          String @id @default(cuid())
   clientId    String @map("client_id")
-  licenseId   String @map("license_id")
+  planId   String @map("plan_id")
   workspaceId String @map("workspace_id")
 
   // Registration metadata
@@ -171,10 +170,10 @@ model ClientLicense {
 
   // Relations
   client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  license   License   @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@unique([clientId, licenseId]) // Prevents assigning the same license twice to one client
+  @@unique([clientId, planId]) // Prevents assigning the same license twice to one client
   @@map("client_licenses")
 }
 
@@ -357,8 +356,8 @@ model Client {
   invoices        Invoice[]
   payments        Payment[]
   revenueTracking RevenueTracking[]
-  license         License?          @relation(fields: [licenseId], references: [id])
-  licenseId       String
+  plan         Plan?          @relation(fields: [planId], references: [id])
+  planId       String
   clientLicenses  ClientLicense[]
 
   @@unique([userId, workspaceId, email])

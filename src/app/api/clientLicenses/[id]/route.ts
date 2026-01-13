@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { prisma, getAllCLientLicense } from '@/lib/db'
+import { prisma } from '@/lib/db'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log("Backend hit for ID:", params.id);
+    const {id}=await params;
+    console.log("Backend hit for ID:", id);
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const clientLicense = await prisma.clientLicense.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         client: true,
-        license: true,
+        plan: true,
       }
     });
 
