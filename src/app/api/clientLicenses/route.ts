@@ -1,27 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
 import { auth } from '@/lib/auth'
-import { prisma, getAllCLientLicense } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
-    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const clientlicenses = await prisma.clientLicense.findMany({
+      include: { plan: true, client: true } 
+    });
 
-    const clientlicenses = await getAllCLientLicense();
- 
-    return NextResponse.json({ success: true, Clientlicenses: clientlicenses })
+    return NextResponse.json({ success: true, data: clientlicenses })
   } catch (error) {
     console.error('API GET Error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-
 
 export async function POST(req: Request) {
   try {
@@ -31,42 +27,47 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    console.log(body);
     const { clientId, workspaceId, planId, notes } = body;
 
     if (!clientId || !workspaceId || !planId) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
-    const newClientLicense = await prisma.clientLicense.create({
+
+    const plan = await prisma.plan.findUnique({ where: { id: planId } });
+    if (!plan) {
+      return NextResponse.json({ error: "Plan not found" }, { status: 404 });
+    }
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setFullYear(startDate.getFullYear() + 5);
+
+    const renewalDate = new Date();
+    if (plan.billingCycle === 'MONTHLY') {
+      renewalDate.setMonth(startDate.getMonth() + 1);
+    } else if (plan.billingCycle === 'YEARLY') {
+      renewalDate.setFullYear(startDate.getFullYear() + 1);
+    }
+    const newLicense = await prisma.clientLicense.create({
       data: {
         clientId,
         workspaceId,
         planId,
         notes,
+        startDate,
+        renewalDate,
+        endDate,
         isActive: true,
       },
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      data: newClientLicense 
-    }, { status: 201 });
+    return NextResponse.json({ success: true, data: newLicense }, { status: 201 });
 
   } catch (error: any) {
-    console.error("PRISMA_CREATE_ERROR", error);
+    console.error("POST_ERROR", error);
     if (error.code === 'P2002') {
-      return NextResponse.json(
-        { error: "This client already has this specific license assigned." },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "License already exists for this client." }, { status: 409 });
     }
-
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -49,21 +49,21 @@ VALUES ('sp_service_009', 3, 'Doctor Charge', 500.00, 'FIXED', NOW());
 
 
 
-INSERT INTO License 
+INSERT INTO Plan 
 (id, name, code, description, price, currency, billingCycle, startDate, endDate, autoRenew, renewalPrice, status, createdAt, updatedAt) 
 VALUES
 (
-  'ckxyz1234567890abcdef1234',
-  'Basic License',
-  'BASIC',
-  'This is the basic license',
-  99.99,
+  'ckxyz1234567890abcdef1235',
+  'Basic Yearly',
+  'BASICY',
+  'This is the basic Yearly Plan',
+  15000.99,
   'INR',
-  'MONTHLY',
+  'YEARLY',
   '2026-01-01 00:00:00',
   '2027-01-01 00:00:00',
   TRUE,
-  89.99,
+  1500.99,
   'ACTIVE',
   NOW(),
   NOW()

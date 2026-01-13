@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
-// --- Loading Component for Table ---
 const TableSkeleton = () => (
   <div className="animate-pulse">
     {[...Array(5)].map((_, i) => (
@@ -18,21 +17,23 @@ const TableSkeleton = () => (
 );
 
 const ClientLicensesPage = () => {
-  const [licensesList, setLicensesList] = useState([]);
+  const [licensesList, setLicensesList] = useState<any[]>([]); // Initialize as empty array
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchTableData = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const res = await fetch("/api/clientLicenses");
       const data = await res.json();
-      console.log(data.Clientlicenses); 
-      if (data.success) {
-        setLicensesList(data.Clientlicenses);
+      if (data.success && Array.isArray(data.data)) {
+        setLicensesList(data.data);
+      } else {
+        setLicensesList([]);
       }
     } catch (error) {
       console.error("Failed to fetch list", error);
+      setLicensesList([]);
     } finally {
       setLoading(false);
     }
@@ -66,21 +67,31 @@ const ClientLicensesPage = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client License ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">License ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Renewal Date</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
-                <TableSkeleton />
-              ) : licensesList.length > 0 ? (
+                <tr><td colSpan={5} className="text-center py-10">Loading...</td></tr>
+              ) : licensesList?.length > 0 ? (
                 licensesList.map((item: any) => (
                   <tr key={item.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{<Link href={`clientLicenses/${item.id}`}>{item.id}</Link>}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.clientId} ({item.client.name})</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.planId} ({item.plan.name})</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-mono">
+                      <Link href={`clientLicenses/${item.id}`}>{item.id}</Link>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.client?.name || "Unknown Client"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {item.plan?.name || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {item.renewalDate ? new Date(item.renewalDate).toLocaleDateString() : "N/A"}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 text-xs rounded-full ${item.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {item.isActive ? 'Active' : 'Inactive'}
@@ -90,7 +101,7 @@ const ClientLicensesPage = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-gray-500">No licenses found.</td>
+                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500">No licenses found.</td>
                 </tr>
               )}
             </tbody>
@@ -126,29 +137,39 @@ const RegistrationForm = ({ onSuccess }: { onSuccess: () => void }) => {
     fetchDropdowns();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("/api/clientLicenses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        onSuccess();
-      } else {
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+  try {
+    const res = await fetch("/api/clientLicenses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    if (res.ok) {
+      onSuccess();
+    } else {
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
         const err = await res.json();
-        alert(err.error);
+        alert(err.error || "Something went wrong");
+      } else {
+        const textError = await res.text();
+        console.error("Server Error:", textError);
+        alert(`Server Error: ${res.status} ${res.statusText}`);
       }
-    } finally {
-      setIsSubmitting(false);
     }
-  };
+  } catch (err) {
+    console.error("Network Error:", err);
+    alert("Failed to connect to the server.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="max-w-lg bg-gray-50 p-6 rounded-lg border space-y-4">
-      {/* ... (select inputs remain same) */}
       <div>
         <label className="block text-sm font-medium mb-1">Select Client</label>
         <select className="w-full border p-2 rounded bg-white" required value={formData.clientId} onChange={e => setFormData({...formData, clientId: e.target.value})}>

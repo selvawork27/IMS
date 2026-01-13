@@ -158,22 +158,24 @@ model Plan {
 }
 
 model ClientLicense {
-  id          String @id @default(cuid())
-  clientId    String @map("client_id")
-  planId   String @map("plan_id")
-  workspaceId String @map("workspace_id")
+  id          String   @id @default(cuid())
+  clientId    String   @map("client_id")
+  planId      String   @map("plan_id")
+  workspaceId String   @map("workspace_id")
 
-  // Registration metadata
-  assignedAt DateTime @default(now())
-  isActive   Boolean  @default(true)
-  notes      String?  @db.Text
+  startDate   DateTime @default(now())      // When the license first started
+  renewalDate DateTime                      // Next billing date (Monthly/Yearly)
+  endDate     DateTime                      // Hard expiration (e.g., 5 years from start)
+
+  isActive    Boolean  @default(true)
+  notes       String?  @db.Text
 
   // Relations
-  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  plan        Plan      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@unique([clientId, planId]) // Prevents assigning the same license twice to one client
+  @@unique([clientId, planId])
   @@map("client_licenses")
 }
 
