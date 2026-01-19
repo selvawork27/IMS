@@ -199,9 +199,26 @@ await prisma.plan.update({
     }
   }
 });
+await prisma.plan.update({
+  where: { id: "inr-hms-plan-m" },
+  data: {
+    products: {
+      connect: { id: 1 }
+    }
+  }
+});
 
 await prisma.plan.update({
   where: { id: "usd-hms-plan-y" },
+  data: {
+    products: {
+      connect: { id: 1 }
+    }
+  }
+});
+
+await prisma.plan.update({
+  where: { id: "usd-hms-plan-m" },
   data: {
     products: {
       connect: { id: 1 }
