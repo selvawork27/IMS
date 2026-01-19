@@ -19,6 +19,7 @@ export async function GET(
       include: {
         client: true,
         plan: true,
+        invoices:true
       }
     });
 

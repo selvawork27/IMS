@@ -17,7 +17,7 @@ const TableSkeleton = () => (
 );
 
 const ClientLicensesPage = () => {
-  const [licensesList, setLicensesList] = useState<any[]>([]); // Initialize as empty array
+  const [licensesList, setLicensesList] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 

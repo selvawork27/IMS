@@ -171,6 +171,8 @@ export async function POST(request: NextRequest) {
       description: body.description,
       dueDate: new Date(body.dueDate),
       currency: body.currency || 'USD',
+      clientLicenseId:body.clientLicenseId,
+      planId:body.planId,
       currencyId:body.currencyId,
       taxRate: body.taxRate ? new Decimal(body.taxRate) : undefined,
       notes: body.notes,

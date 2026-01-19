@@ -116,7 +116,7 @@ model Product {
   subProducts SubProduct[]
   lineItems   LineItem[]
   plans       Plan[]    @relation("PlanToProduct")
-}
+} 
 
 enum PlanStatus {
   ACTIVE
@@ -151,6 +151,8 @@ model Plan {
 
   products  Product[] @relation("PlanToProduct")
   clients  Client[]
+  
+  invoices Invoice[]
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -163,10 +165,9 @@ model ClientLicense {
   planId      String   @map("plan_id")
   workspaceId String   @map("workspace_id")
 
-  startDate   DateTime @default(now())      // When the license first started
-  renewalDate DateTime                      // Next billing date (Monthly/Yearly)
-  endDate     DateTime                      // Hard expiration (e.g., 5 years from start)
-
+  startDate   DateTime @default(now())     
+  renewalDate DateTime                    
+  endDate     DateTime  
   isActive    Boolean  @default(true)
   notes       String?  @db.Text
 
@@ -174,6 +175,8 @@ model ClientLicense {
   client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   plan        Plan      @relation(fields: [planId], references: [id], onDelete: Cascade)
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  invoices Invoice[]
 
   @@unique([clientId, planId])
   @@map("client_licenses")
@@ -432,6 +435,11 @@ model Invoice {
   currencie Currencie? @relation(fields: [currencyId], references: [id])
 
   // These link to the detailed billing rows (Service Charge, Doctor Usage, etc.)
+
+  clientLicenseId String?        @map("client_license_id")
+  clientLicense   ClientLicense? @relation(fields: [clientLicenseId], references: [id])
+  planId          String?        @map("plan_id")
+  plan            Plan?          @relation(fields: [planId], references: [id])
   lineItems LineItem[]
 
   payments        Payment[]

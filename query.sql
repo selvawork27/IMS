@@ -45,8 +45,11 @@ VALUES
 
 use linea;
 INSERT INTO sub_products (id, product_id, name, baseRate, billingType, updatedAt)
-VALUES ('sp_service_009', 3, 'Doctor Charge', 500.00, 'FIXED', NOW());
-
+VALUES ('sp_service_001', 3, 'Doctor Charge', 500.00, 'FIXED', NOW());
+INSERT INTO sub_products (id, product_id, name, baseRate, billingType, updatedAt)
+VALUES ('sp_service_002', 3, 'Service Charge', 1500.00, 'FIXED', NOW());
+INSERT INTO sub_products (id, product_id, name, baseRate, billingType, updatedAt)
+VALUES ('sp_service_003', 3, 'Developer Charge', 2500.00, 'FIXED', NOW());
 
 
 INSERT INTO Plan 
@@ -64,6 +67,26 @@ VALUES
   '2027-01-01 00:00:00',
   TRUE,
   1500.99,
+  'ACTIVE',
+  NOW(),
+  NOW()
+);
+
+INSERT INTO Plan 
+(id, name, code, description, price, currency, billingCycle, startDate, endDate, autoRenew, renewalPrice, status, createdAt, updatedAt) 
+VALUES
+(
+  'ckxyz1234567890abcdef1234',
+  'Basic MONTHLY',
+  'BASICM',
+  'This is the basic MONTHLY Plan',
+  1250.99,
+  'INR',
+  'MONTHLY',
+  '2026-01-01 00:00:00',
+  '2027-01-01 00:00:00',
+  TRUE,
+  1250.99,
   'ACTIVE',
   NOW(),
   NOW()

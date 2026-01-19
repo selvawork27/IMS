@@ -75,6 +75,8 @@ interface InvoiceFormData {
   status: "DRAFT" | "SENT" | "VIEWED" | "PAID" | "OVERDUE" | "CANCELLED" | "REFUNDED";
   selectedTemplate: string;
   currencyId: string;
+  clientLicenseId: string;
+  planId: string;
   currencyCode: String;
   company: {
     name: string;
@@ -120,11 +122,29 @@ export function InvoiceForm({
 
   const { data: companyProfile, isLoading: companyLoading } = useCompanyProfile();
   const { currencies, isLoading: currenciesLoading } = useCurrencies();
-
+  const [clientLicense,setClientLicense]=useState<any[]>([]);
+  useEffect(() => {
+    const fetchClientLicense = async () => {
+      try {
+        const response = await fetch("/api/clientLicenses");
+        if (!response.ok) throw new Error("Response not Okay");
+        const result = await response.json();
+        console.log("h",result)
+        if (result.success && Array.isArray(result.data)) {
+          setClientLicense(result.data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchClientLicense();
+  }, []);
   const [formData, setFormData] = useState<InvoiceFormData>({
     invoiceNumber: initialData?.invoiceNumber || "",
     date: initialData?.date || new Date().toISOString().split("T")[0],
     dueDate: initialData?.dueDate || "",
+    clientLicenseId: initialData?.clientLicenseId || "",
+    planId: initialData?.planId || "",
     status: initialData?.status || "DRAFT",
     selectedTemplate: templateFromQuery || initialData?.selectedTemplate || "template1",
     currencyId: initialData?.currencyId || "",
@@ -247,6 +267,8 @@ export function InvoiceForm({
     dueDate: formData.dueDate,
     status: 'DRAFT' as const,
     subtotal: subtotal,
+    clientLicenseId:formData.clientLicenseId,
+    planId:formData.planId,
     currency: formData.currencyCode || '',
     currencyId: formData.currencyId || '',
     taxAmount: tax,
@@ -277,6 +299,7 @@ export function InvoiceForm({
       if (!formData.items.length || formData.items.some(item => !item.description)) {
         throw new Error('Please add at least one item with description');
       }
+      console.log(JSON.stringify(createInvoicePayload()));
       const response = await fetch('/api/invoices', {
         method: 'POST',
         headers: {
@@ -595,6 +618,91 @@ export function InvoiceForm({
                 }
               />
             </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  {/* 1. Client License Dropdown */}
+  <div className="space-y-2 gap-20">
+    <Label htmlFor="licenseSelect">Select Client License</Label>
+    <Select
+      value={formData.clientLicenseId}
+      onValueChange={(val) => {
+        const selectedLicense = clientLicense.find((l) => l.id === val);
+        if (selectedLicense) {
+          setFormData((prev) => ({
+            ...prev,
+            clientLicenseId: selectedLicense.id,
+            planId: selectedLicense.planId,
+            currencyCode: selectedLicense.plan.currency,
+            client: {
+              name: selectedLicense.client.name,
+              email: selectedLicense.client.email,
+              address: selectedLicense.client.address || "",
+            },
+            items: [
+              {
+                id: crypto.randomUUID(),
+                description: `Subscription: ${selectedLicense.plan.name}`,
+                quantity: 1,
+                rate: Number(selectedLicense.plan.price),
+                amount: Number(selectedLicense.plan.price),
+              },
+            ],
+          }));
+          setSelectedClientId(selectedLicense.clientId);
+        }
+      }}
+    >
+      <SelectTrigger id="licenseSelect">
+        <SelectValue placeholder="Choose a License (Client Name)" />
+      </SelectTrigger>
+      <SelectContent>
+        {clientLicense.map((license) => (
+          // Using license.id ensures uniqueness here
+          <SelectItem key={license.id} value={license.id}>
+            {license.client.name} — {license.plan.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+
+  {/* 2. Linked Plan Dropdown */}
+  <div className="space-y-2">
+    <Label htmlFor="planSelect">Linked Plan</Label>
+    <Select
+      value={formData.planId}
+      onValueChange={(val) => {
+        const selectedLicense = clientLicense.find(
+          (l) => l.planId === val && l.clientId === selectedClientId
+        );
+        if (selectedLicense) {
+          setFormData((prev) => ({
+            ...prev,
+            planId: val,
+            clientLicenseId: selectedLicense.id,
+          }));
+        }
+      }}
+    >
+      <SelectTrigger id="planSelect" className="bg-gray-50">
+        <SelectValue placeholder="Plan details" />
+      </SelectTrigger>
+      <SelectContent>
+        {/* We create a unique list of plans to avoid the "Duplicate Key" error */}
+        {Array.from(
+          new Map(
+            clientLicense
+              .filter((l) => !selectedClientId || l.clientId === selectedClientId)
+              .map((l) => [l.plan.id, l.plan])
+          ).values()
+        ).map((plan) => (
+          <SelectItem key={plan.id} value={plan.id}>
+            {plan.name} ({plan.currency} {plan.price})
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+</div>
           </div>
 
           <Separator />

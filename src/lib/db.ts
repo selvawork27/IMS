@@ -379,6 +379,8 @@ export async function createInvoice(userId: string, workspaceId: string, data: {
   description?: string
   dueDate: Date
   currency?: string
+  clientLicenseId:string
+  planId:string
   currencyId:string
   taxRate?: Prisma.Decimal
   notes?: string
