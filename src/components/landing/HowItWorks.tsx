@@ -31,7 +31,7 @@ export default function HowItWorks() {
         <div className="mx-auto max-w-2xl text-center mb-16">
           <h2 className="text-base font-semibold leading-7 text-blue-600">Process</h2>
           <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl font-outfit">
-            How Linea works
+            How DevTech's Invoice System works
           </p>
         </div>
 

@@ -131,24 +131,24 @@ async function main() {
   await prisma.plan.createMany({
     data: [
       {
-        id: "basic-yearly-plan",
-        name: "Basic Yearly",
-        code: "BASICY",
-        description: "This is the basic yearly plan",
+        id: "inr-hms-plan-y",
+        name: "INR-HMS-Plan-Yearly",
+        code: "IHPY",
+        description: "This is the INR HMS yearly plan",
         price: 15000.99,
         currency: "INR",
         billingCycle: BillingCycle.YEARLY,
         startDate: new Date("2026-01-01"),
         endDate: new Date("2027-01-01"),
         autoRenew: true,
-        renewalPrice: 1500.99,
+        renewalPrice: 15000.99,
         status: PlanStatus.ACTIVE,
       },
       {
-        id: "basic-monthly-plan",
-        name: "Basic Monthly",
-        code: "BASICM",
-        description: "This is the basic monthly plan",
+        id: "inr-hms-plan-m",
+        name: "INR-HMS-Plan-Monthly",
+        code: "IHPM",
+        description: "This is the INR HMS monthly plan",
         price: 1250.99,
         currency: "INR",
         billingCycle: BillingCycle.MONTHLY,
@@ -158,9 +158,57 @@ async function main() {
         renewalPrice: 1250.99,
         status: PlanStatus.ACTIVE,
       },
+        {
+        id: "usd-hms-plan-m",
+        name: "USD-HMS-Plan-Monthly",
+        code: "UHPM",
+        description: "This is the USD HMS monthly plan",
+        price: 1250.99,
+        currency: "USD",
+        billingCycle: BillingCycle.MONTHLY,
+        startDate: new Date("2026-01-01"),
+        endDate: new Date("2026-02-01"),
+        autoRenew: true,
+        renewalPrice: 1250.99,
+        status: PlanStatus.ACTIVE,
+      },
+        {
+        id: "usd-hms-plan-y",
+        name: "USD-HMS-Plan-Yearly",
+        code: "UHPY",
+        description: "This is the USD HMS yearly plan",
+        price: 15000.99,
+        currency: "USD",
+        billingCycle: BillingCycle.YEARLY,
+        startDate: new Date("2026-01-01"),
+        endDate: new Date("2027-01-01"),
+        autoRenew: true,
+        renewalPrice: 15000.99,
+        status: PlanStatus.ACTIVE,
+      },
     ],
     skipDuplicates: true,
   })
+
+/* ===================== CONNECTING PLANS TO PRODUCTS ===================== */
+await prisma.plan.update({
+  where: { id: "inr-hms-plan-y" },
+  data: {
+    products: {
+      connect: { id: 1 }
+    }
+  }
+});
+
+await prisma.plan.update({
+  where: { id: "usd-hms-plan-y" },
+  data: {
+    products: {
+      connect: { id: 1 }
+    }
+  }
+});
+
 
   console.log("✅ Database seeded successfully")
 }
