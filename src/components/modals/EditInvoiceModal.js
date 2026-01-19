@@ -91,7 +91,7 @@ export function EditInvoiceModal({ open, onOpenChange, invoice, onSaved }) {
                 <div key={f.id} className="flex gap-2 items-center">
                   <Input {...register(`lineItems.${idx}.description`)} placeholder="Description" />
                   <Input {...register(`lineItems.${idx}.quantity`)} type="number" className="w-20" />
-                  <Input {...register(`lineItems.${idx}.unitPrice`)} type="number" className="w-28" />
+                  <Input {...register(`lineItems.${idx}.unitPrice`,{valueAsNumber:true})} type="number" step="0.01" className="w-28" />
                   <Button type="button" variant="ghost" onClick={() => remove(idx)}>Remove</Button>
                 </div>
               ))}

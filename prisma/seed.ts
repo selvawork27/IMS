@@ -153,7 +153,7 @@ async function main() {
         currency: "INR",
         billingCycle: BillingCycle.MONTHLY,
         startDate: new Date("2026-01-01"),
-        endDate: new Date("2027-01-01"),
+        endDate: new Date("2026-02-01"),
         autoRenew: true,
         renewalPrice: 1250.99,
         status: PlanStatus.ACTIVE,

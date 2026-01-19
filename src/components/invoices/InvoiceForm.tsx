@@ -272,6 +272,7 @@ export function InvoiceForm({
     currency: formData.currencyCode || '',
     currencyId: formData.currencyId || '',
     taxAmount: tax,
+    taxRate:0.1,
     total: total,
     notes: formData.notes,
     templateName: formData.selectedTemplate||'template1',
