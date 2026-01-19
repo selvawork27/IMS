@@ -47,7 +47,6 @@ const navigation = [
   { name: "Plans", href: "/plans", icon: Files },
   { name: "Client Licenses", href: "/clientLicenses", icon: BookText  },
   { name: "Templates", href: "/templates", icon: Layout },
-  { name: "Currencies", href: "/currencies", icon: DollarSign },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
