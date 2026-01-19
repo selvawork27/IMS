@@ -85,7 +85,7 @@ export default function LicenseDetailPage() {
           <div className="mt-6 flex items-end gap-4">
             <div>
               <label className="text-[10px] font-bold text-gray-500 uppercase block">Plan Price</label>
-              <p className="text-2xl font-mono font-bold">₹ {parseFloat(data.plan?.price).toLocaleString('en-IN')}</p>
+              <p className="text-2xl font-mono font-bold">{data.plan?.currency} {parseFloat(data.plan?.price).toLocaleString('en-IN')}</p>
             </div>
             <div className="pb-1">
               <span className="text-xs bg-white/10 px-2 py-1 rounded text-gray-300 uppercase font-bold tracking-tighter">
