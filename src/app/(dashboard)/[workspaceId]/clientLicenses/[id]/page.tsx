@@ -128,7 +128,7 @@ export default function LicenseDetailPage() {
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Issue Date</th>
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Amount</th>
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Payment</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Workflow</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
