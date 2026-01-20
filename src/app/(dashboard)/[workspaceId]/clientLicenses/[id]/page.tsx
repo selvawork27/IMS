@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LicenseDetailPage() {
-  const { id } = useParams();
+  const { id} = useParams();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -135,11 +136,14 @@ export default function LicenseDetailPage() {
                 {data.invoices && data.invoices.length > 0 ? (
                   data.invoices.map((inv: any) => (
                     <tr key={inv.id} className="hover:bg-gray-50 transition-colors group">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-mono font-bold text-blue-600 group-hover:underline cursor-pointer">
+                     <Link href={`/${data.workspaceId}/invoices/${inv.id}`}
+                      className="text-blue-600 hover:underline">
+    
+                      
                           {inv.invoiceNumber}
-                        </span>
-                      </td>
+                      
+                      
+                     </Link>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {formatDate(inv.issueDate)}
                       </td>
