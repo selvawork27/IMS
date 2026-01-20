@@ -414,11 +414,20 @@ export function InvoiceForm({
     customMessage: string;
   };
 
-  const emailState = {
+  const emailState = {  
     recipientEmail: formData.client.email,
     includePDF: true,
     customMessage: '',
   };
+  
+  const generateId = () => {
+  if (typeof window !== 'undefined' && window.crypto?.randomUUID) {
+    console.log(window.crypto.randomUUID())
+    return window.crypto.randomUUID();
+  }
+  console.log( Math.random().toString(36).substring(2, 15))
+  return Math.random().toString(36).substring(2, 15);
+};
 
   const [emailData, setEmailData] = useState<EmailState>(emailState);
 
@@ -460,7 +469,7 @@ export function InvoiceForm({
   };
 
   const addSubProductAsNewRow = (parentName: string, sub: SubProduct) => {
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     setFormData((prev) => ({
       ...prev,
       items: [
@@ -640,7 +649,7 @@ export function InvoiceForm({
                         },
                         items: [
                           {
-                            id: crypto.randomUUID(),
+                            id: generateId(),
                             description: `Subscription: ${selectedLicense.plan.name}`,
                             quantity: 1,
                             rate: Number(selectedLicense.plan.price),
