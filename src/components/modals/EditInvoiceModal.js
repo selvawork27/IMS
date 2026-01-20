@@ -1,4 +1,4 @@
-import React, { use, useEffect } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +50,20 @@ export function EditInvoiceModal({ open, onOpenChange, invoice, onSaved }) {
     else { }
   };
 
+  // const[currency,setCurrency]=useState({})
+  // useEffect(()=>{
+  //   const fetchCurrency= async ()=>{
+  //     const response=await fetch(`/api/invoices/${invoice.id}`);
+  //     if (!response.ok) {
+  //       const errorData = await response.json().catch(() => ({}));
+  //       throw new Error(errorData.error || 'Failed to create invoice');
+  //     }
+  //     console.log(response.json());
+  //     return response.json();
+  //   }
+  //   fetchCurrency();
+  // })
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
@@ -77,7 +91,7 @@ export function EditInvoiceModal({ open, onOpenChange, invoice, onSaved }) {
                 <div key={f.id} className="flex gap-2 items-center">
                   <Input {...register(`lineItems.${idx}.description`)} placeholder="Description" />
                   <Input {...register(`lineItems.${idx}.quantity`)} type="number" className="w-20" />
-                  <Input {...register(`lineItems.${idx}.unitPrice`)} type="number" className="w-28" />
+                  <Input {...register(`lineItems.${idx}.unitPrice`,{valueAsNumber:true})} type="number" step="0.01" className="w-28" />
                   <Button type="button" variant="ghost" onClick={() => remove(idx)}>Remove</Button>
                 </div>
               ))}

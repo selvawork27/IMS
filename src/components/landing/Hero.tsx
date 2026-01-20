@@ -43,7 +43,7 @@ export default function Hero() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
             <Image src="/linea.svg" alt="Linea Logo" width={24} height={24} className="h-6 w-6" />
           </div>
-          <span className="font-outfit text-2xl font-bold tracking-tight text-gray-900">Linea</span>
+          <span className="font-outfit text-2xl font-bold tracking-tight text-gray-900">DevEnv Tech</span>
         </div>
 
         <h1

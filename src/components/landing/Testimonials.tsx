@@ -5,7 +5,7 @@ import Image from "next/image";
 
 const testimonials = [
   {
-    content: "Linea has completely transformed how I handle my freelancing finances. It's simple, beautiful, and just works.",
+    content: "DevEnv Tech's Invoice System has completely transformed how I handle my freelancing finances. It's simple, beautiful, and just works.",
     author: "Sarah Jenning",
     role: "Freelance Designer",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",

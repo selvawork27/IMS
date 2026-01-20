@@ -32,7 +32,12 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="month" className="text-xs fill-muted-foreground" />
               <YAxis className="text-xs fill-muted-foreground" tickFormatter={(v) => `$${v}`} />
-              <Tooltip formatter={(v: number) => [`$${v.toFixed(2)}`, "Revenue"]} />
+             <Tooltip
+                formatter={(value?: number) => [
+                  `$${(value ?? 0).toFixed(2)}`,
+                  'Revenue',
+                ]}
+              />
               <Area type="monotone" dataKey="total" stroke="#2388ff" fill="url(#rev)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>

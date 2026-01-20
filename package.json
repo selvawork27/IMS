@@ -1,5 +1,5 @@
 {
-  "name": "linea",
+  "name": "devenv",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,11 @@
     "format": "biome format --write",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev"
+    "db:migrate": "prisma migrate dev",
+    "db:seed":"prisma db seed"
+  },
+    "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.26",

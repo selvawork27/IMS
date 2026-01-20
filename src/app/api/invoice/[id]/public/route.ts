@@ -8,14 +8,14 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // Get the invoice with all details (public access)
     const invoice = await prisma.invoice.findFirst({
       where: { 
         id,
-        // Only allow access to SENT or PAID invoices for public viewing
         status: { in: ['SENT', 'PAID'] }
       },
       include: {
+        clientLicense:true,
+        plan:true,
         client: {
           select: {
             name: true,
@@ -57,6 +57,8 @@ export async function GET(
         id: invoice.id,
         invoiceNumber: invoice.invoiceNumber,
         title: invoice.title,
+        clientLicense:invoice.clientLicense,
+        plan:invoice.plan,
         description: invoice.description,
         issueDate: invoice.issueDate,
         dueDate: invoice.dueDate,

@@ -52,9 +52,9 @@ export default function Navbar() {
       >
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600">
-            <Image src="/linea.svg" alt="Linea" width={20} height={20} className="w-5 h-5" />
+            <Image src="/devenv.jpg" alt="Linea" width={20} height={20} className="w-5 h-5" />
           </div>
-          <span className="font-outfit font-bold text-xl text-gray-900">Linea</span>
+          <span className="font-outfit font-bold text-xl text-gray-900">DevEnv Tech</span>
         </div>
 
         <div className="hidden md:flex items-center gap-8">

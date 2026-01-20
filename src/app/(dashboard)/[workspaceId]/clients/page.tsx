@@ -462,7 +462,7 @@ export default function ClientsPage() {
               ))}
             </div>
           ) : clients.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-x-auto">
               {clients.map((client) => (
                 <div
                   key={client.id}

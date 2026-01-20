@@ -142,10 +142,44 @@ export async function updateUserNotificationSettings(userId: string, data: {
 }
 
 // ============================================================================
+// LICENSE MANAGEMENT
+// ============================================================================
+  export async function getPlan(){
+    const plan=await prisma.plan.findMany({
+      include:{
+        products:true,
+        clients:true
+      }
+    })
+    return plan; 
+  }
+export async function getPlanById(id: string) {
+  return prisma.plan.findUnique({
+    where: { id },
+    include: {
+      products: true,
+      clients: true,
+    },
+  })
+}
+
+export async function getAllCLientLicense(){
+  return prisma.clientLicense.findMany({
+    include:{
+      plan:true,
+      client:true,
+    }
+  })
+}
+// ============================================================================
 // PRODUCT MANAGEMENT
 // ============================================================================
 export async function getProduct(){
-  const products= await prisma.product.findMany({});  
+  const products= await prisma.product.findMany({
+    include:{
+      subProducts:true,
+    }
+  });  
   return products;
 }
 
@@ -167,9 +201,9 @@ export async function getClients(userId: string, options: {
     ...(status && { status }),
     ...(search && {
       OR: [
-        { name: { contains: search, mode: 'insensitive' as const } },
-        { email: { contains: search, mode: 'insensitive' as const } },
-        { companyName: { contains: search, mode: 'insensitive' as const } }
+        { name: { contains: search} },
+        { email: { contains: search} },
+        { companyName: { contains: search } }
       ]
     })
   }
@@ -225,6 +259,7 @@ export async function createClient(userId: string, workspaceId: string, data: {
   zipCode?: string
   country?: string
   companyName?: string
+  planId:string
   taxNumber?: string
   notes?: string
   tags?: string[]
@@ -233,7 +268,7 @@ export async function createClient(userId: string, workspaceId: string, data: {
     data: {
       ...data,
       userId,
-      workspaceId
+      workspaceId,
     }
   })
 }
@@ -294,8 +329,11 @@ export async function getInvoices(userId: string, workspaceId: string, options: 
         client: {
           select: { name: true, email: true }
         },
+        currencie: {
+        select: { code: true, symbol: true }
+      },
         lineItems: {
-          select: { amount: true }
+          select: { amount: true,quantity: true }
         },
         _count: {
           select: { lineItems: true, payments: true }
@@ -341,6 +379,9 @@ export async function createInvoice(userId: string, workspaceId: string, data: {
   description?: string
   dueDate: Date
   currency?: string
+  clientLicenseId:string
+  planId:string
+  currencyId:string
   taxRate?: Prisma.Decimal
   notes?: string
   terms?: string

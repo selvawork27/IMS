@@ -7,7 +7,7 @@ import { Plus, Minus } from "lucide-react";
 const faqs = [
   {
     question: "Is there a free trial available?",
-    answer: "Yes, you can try Linea for free for 14 days. No credit card required.",
+    answer: "Yes, you can try DevEnv Tech's Invoice System for free for 14 days. No credit card required.",
   },
   {
     question: "Can I cancel my subscription anytime?",
