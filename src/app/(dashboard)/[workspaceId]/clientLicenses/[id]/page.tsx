@@ -54,7 +54,7 @@ export default function LicenseDetailPage() {
           onClick={() => router.back()} 
           className="px-5 py-2 border-2 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all active:scale-95"
         >
-          ← Back to List
+          ← Back
         </button>
       </div>
 
@@ -120,7 +120,7 @@ export default function LicenseDetailPage() {
             </span>
           </div>
           
-          <div className="overflow-hidden border border-gray-200 rounded-2xl bg-white shadow-sm">
+          <div className="overflow-hidden overflow-x-auto border border-gray-200 rounded-2xl bg-white shadow-sm">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
