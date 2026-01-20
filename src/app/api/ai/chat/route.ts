@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       })
       .filter((m: any) => m !== null && m.parts && m.parts.length > 0)
 
-  const result = streamText({
+  const result =streamText({
     model: google('gemini-2.0-flash') as any,
     system: `You are Linea's AI assistant. Be concise and helpful.
     
@@ -66,7 +66,7 @@ For example:
 - Tool returns list → You respond: "I found X invoices..." etc.
 
 After tool execution, continue generating text to explain the results to the user.`,
-    messages: convertToModelMessages(cleanedMessages),
+    messages:await convertToModelMessages(cleanedMessages),
     // The SDK automatically handles multiple tool calls and text generation after tools
     tools: {
       // Agent: Provisional IRN operations
@@ -304,8 +304,15 @@ After tool execution, continue generating text to explain the results to the use
           await new Promise(resolve => setTimeout(resolve, 500))
           
           // Check if we need a follow-up
-          const finalText = await result.text.catch(() => '')
-          const steps = await result.steps.catch(() => [])
+        let finalText = ''
+          let steps: any[] = []
+
+          try {
+            finalText = await result.text
+            steps = await result.steps
+          } catch (err) {
+            console.error('[ai-chat] streamText failed', err)
+          }
           
           const hasToolCall = Array.isArray(steps) && steps.some((step: any) => step.toolCalls?.length > 0)
           const hasText = hasTextInStream || (finalText && finalText.trim().length > 0)

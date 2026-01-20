@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
           name: body.client.name,
           email: body.client.email,
           phone: body.client.phone,
+          planId:body.planId||[],
           address: body.client.address,
           city: body.client.city,
           state: body.client.state,

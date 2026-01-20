@@ -201,9 +201,9 @@ export async function getClients(userId: string, options: {
     ...(status && { status }),
     ...(search && {
       OR: [
-        { name: { contains: search, mode: 'insensitive' as const } },
-        { email: { contains: search, mode: 'insensitive' as const } },
-        { companyName: { contains: search, mode: 'insensitive' as const } }
+        { name: { contains: search} },
+        { email: { contains: search} },
+        { companyName: { contains: search } }
       ]
     })
   }
@@ -259,7 +259,7 @@ export async function createClient(userId: string, workspaceId: string, data: {
   zipCode?: string
   country?: string
   companyName?: string
-  planId?:string
+  planId:string
   taxNumber?: string
   notes?: string
   tags?: string[]
@@ -268,7 +268,7 @@ export async function createClient(userId: string, workspaceId: string, data: {
     data: {
       ...data,
       userId,
-      workspaceId
+      workspaceId,
     }
   })
 }
